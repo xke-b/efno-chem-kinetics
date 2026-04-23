@@ -49,6 +49,8 @@ _Date: 2026-04-23_
 Current evidence:
 - MLP smoke training works after safe-std normalization fix
 - a provisional `fno1d` model scaffold has been added to DFODE-kit and smoke-trained successfully
+- smoke rollout evaluation now exists for both MLP and provisional `fno1d`
+- on the current tiny H2 smoke dataset, the MLP baseline outperforms the provisional `fno1d`
 
 ### Bundle C — coupled-usefulness transition
 - map offline checkpoint format to DeepFlame inference contract
