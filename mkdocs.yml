@@ -1,0 +1,15 @@
+site_name: EFNO Chem Kinetics
+site_url: https://xke-b.github.io/efno-chem-kinetics/
+repo_url: https://github.com/xke-b/efno-chem-kinetics
+repo_name: xke-b/efno-chem-kinetics
+nav:
+  - Home: index.md
+  - Findings: findings/index.md
+  - Blog: blog/index.md
+theme:
+  name: mkdocs
+markdown_extensions:
+  - tables
+  - fenced_code
+  - toc:
+      permalink: true
