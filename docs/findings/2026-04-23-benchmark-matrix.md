@@ -22,6 +22,12 @@ _Date: 2026-04-23_
 - mass-fraction sum error
 - element conservation error
 
+Current tooling status:
+- species rollout evaluator exists
+- mass-fraction-sum rollout metrics exist
+- element-mass rollout metrics exist
+- temperature rollout metrics do not yet exist in the current DFODE-kit contract
+
 ### Coupled metrics
 - solver stability / crash-free progression
 - field-level relative `L2`
