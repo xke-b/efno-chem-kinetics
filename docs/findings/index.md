@@ -8,3 +8,4 @@ This section publishes structured findings from paper reading, implementation, b
 - [2026-04-23 — Workspace survey and baseline inventory](2026-04-23-workspace-survey.md)
 - [2026-04-23 — Initial benchmark matrix for EFNO reproduction](2026-04-23-benchmark-matrix.md)
 - [2026-04-23 — DFODE-kit smoke-training blocker: constant-feature normalization caused NaNs](2026-04-23-dfode-constant-feature-fix.md)
+- [2026-04-23 — Initial FNO scaffold added and smoke-trained on H2 autoignition pairs](2026-04-23-fno1d-scaffold.md)

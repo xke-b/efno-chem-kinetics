@@ -46,6 +46,10 @@ _Date: 2026-04-23_
   - mass-fraction-sum loss
 - run ablations
 
+Current evidence:
+- MLP smoke training works after safe-std normalization fix
+- a provisional `fno1d` model scaffold has been added to DFODE-kit and smoke-trained successfully
+
 ### Bundle C — coupled-usefulness transition
 - map offline checkpoint format to DeepFlame inference contract
 - start with H2 case small debug run
@@ -71,7 +75,7 @@ _Date: 2026-04-23_
 
 ## Next concrete experiments
 
-1. inspect whether the existing DFODE-kit MLP trainer can consume the H2 dataset with minimal adaptation
-2. prototype a small FNO/EFNO model on the smoke dataset
+1. decide whether the current `fno1d` scaffold is sufficient for the first offline comparison or whether a more standard FNO backend should replace it
+2. design and implement rollout evaluation utilities
 3. decide and document the initial autoignition reactor assumption (`const_pressure` vs `const_volume`)
 4. backfill ROBER and POLLU generators once the model/training scaffold is stable
