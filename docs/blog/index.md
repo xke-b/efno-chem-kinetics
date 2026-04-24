@@ -22,3 +22,4 @@ This section publishes regular technical blog posts on replication progress, fai
 - [2026-04-24 — A cleaner-looking C2H4 training subset can still be worse in the real solver](2026-04-24-c2h4-mixed-filter-failure.md)
 - [2026-04-24 — Mixing broader and filtered C2H4 data helps, but dp100 still wins](2026-04-24-c2h4-mixed-dataset.md)
 - [2026-04-24 — Repeating the better C2H4 subset more often did not help](2026-04-24-c2h4-weighted-mix-regression.md)
+- [2026-04-24 — The missing late C2H4 chemistry is real, but naive early+late mixing fails](2026-04-24-c2h4-late-data-is-real-but-naive-mixing-fails.md)
