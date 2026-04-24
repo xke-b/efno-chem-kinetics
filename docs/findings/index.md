@@ -116,5 +116,6 @@ This section publishes structured findings from paper reading, implementation, b
 - [2026-04-24 — H2 manuscript figure packaging: promote corrected-decode and coupled operating-window evidence into manuscript-ready figures](2026-04-24-h2-manuscript-figure-packaging.md)
 - [2026-04-24 — Manuscript citation pass: add a first bibliography, cite EFNO and local related papers, and compile the referenced draft PDF](2026-04-24-manuscript-citation-pass.md)
 - [2026-04-24 — Manuscript methods/protocol pass: make benchmark definitions, deployment contracts, and evaluation logic explicit in the paper draft](2026-04-24-manuscript-methods-protocol-pass.md)
+- [2026-04-24 — Manuscript experiment-overview table: add a compact benchmark/case map to the paper and recompile the PDF draft](2026-04-24-manuscript-experiment-overview-table.md)
 - [2026-04-24 — C2H4 chemistry-proxy 5k deployment attempt: fixing label semantics alone without enough coverage is not enough—the model fails catastrophically by `4e-7`](2026-04-24-c2h4-chemistry-proxy-5k-deployment-attempt.md)
 - [2026-04-24 — C2H4 partial chemistry-proxy label replacement (`10%`) ablation: preserving the CFD backbone keeps the run alive to `5e-6`, but naive partial relabeling still degrades solver-facing behavior badly](2026-04-24-c2h4-partial-chemproxy-10pct-ablation.md)

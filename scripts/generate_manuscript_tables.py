@@ -28,6 +28,54 @@ def write(path: Path, content: str) -> None:
 
 
 
+def experiment_overview_table() -> None:
+    rows = [
+        (
+            'Offline H$_2$ holdout',
+            '7-species ES80 autoignition trajectories',
+            'trajectory holdout; autoregressive rollout',
+            '1-step/rollout MAE; element and mass consistency',
+        ),
+        (
+            'Coupled H$_2$ Burke',
+            '9-species Burke DeepFlame case',
+            'exported checkpoints under preserve-last runtime contract',
+            'HP-failure risk; learned/fallback fractions; operating windows',
+        ),
+        (
+            'Stock C$_2$H$_4$ baseline',
+            'DeepFlame np=8 GPU stock example',
+            'trusted baseline to $5\\times10^{-6}$',
+            'runtime survival; matched-mesh T/p/$\\dot{Q}$ sanity',
+        ),
+        (
+            'Best learned C$_2$H$_4$',
+            '$dp100$ case-pairs + canonical@0.2 mix',
+            'batched FNO bridge against stock horizon',
+            'matched-mesh $\\dot{Q}$/T/p/species comparison at $5\\times10^{-6}$',
+        ),
+    ]
+    body = '\n'.join(
+        f"{name} & {data} & {split} & {metrics} \\\\" for name, data, split, metrics in rows
+    )
+    tex = rf"""\begin{{table*}}[t]
+\centering
+\small
+\caption{{Compact overview of the main benchmark/case families used in the manuscript.}}
+\label{{tab:experiment-overview}}
+\begin{{tabular}}{{p{{2.8cm}}p{{3.3cm}}p{{4.1cm}}p{{4.6cm}}}}
+\toprule
+Study block & Data / mechanism & Split or deployment contract & Primary reported metrics \\
+\midrule
+{body}
+\bottomrule
+\end{{tabular}}
+\end{{table*}}
+"""
+    write(OUT / 'experiment_overview.tex', tex)
+
+
+
 def c2h4_table() -> None:
     stock = json.loads((ART / 'deepflame_c2h4_smoke_analysis' / 'c2h4_stock_baseline_np8_gpu_stocksrc_fields_5e-06_vs_2e-06.json').read_text())
     best = json.loads((ART / 'deepflame_c2h4_smoke_analysis' / 'c2h4_casepair_dp100_plus_canonical_r0p2_fno_batched_full_fields_5e-06_vs_2e-06.json').read_text())
@@ -141,6 +189,7 @@ Species & Original next mean & Chemistry-proxy next mean & Chem/original \\
 
 
 def main() -> None:
+    experiment_overview_table()
     c2h4_table()
     h2_table()
     c2h4_error_anatomy_table()
