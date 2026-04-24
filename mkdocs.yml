@@ -8,6 +8,8 @@ nav:
   - Blog: blog/index.md
 theme:
   name: mkdocs
+validation:
+  omitted_files: ignore
 markdown_extensions:
   - tables
   - fenced_code

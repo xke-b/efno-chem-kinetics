@@ -101,7 +101,7 @@ Compact run summary artifacts are now recorded at:
 
 This matters because it directly answers the concern raised by the earlier failed source-patch experiments:
 - the restored stock-source path does **not** collapse to zero learned activity here
-- the stock-like `np=8` GPU configuration produces a nonzero learned active set immediately and maintains it across the next several learned steps
+- the stock-like `np=8` GPU configuration produces a nonzero learned active set immediately and maintains it through `5e-6`
 
 The run also recorded nonzero DNN timing breakdowns, for example:
 - `allsolveTime = 4.38315 s`
