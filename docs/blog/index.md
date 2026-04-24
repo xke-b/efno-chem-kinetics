@@ -34,3 +34,4 @@ This section publishes regular technical blog posts on replication progress, fai
 - [2026-04-24 — The best C2H4 canonical mix so far is not 0.1 — it’s 0.2](2026-04-24-c2h4-canonical-mix-r0p2-beats-r0p1.md)
 - [2026-04-24 — Stepping back on C2H4: the next bottleneck is not another mix ratio](2026-04-24-c2h4-step-back-and-reset.md)
 - [2026-04-24 — The real C2H4 bottleneck is now visible: wrong source-term behavior in two different regimes](2026-04-24-c2h4-bestmix-error-anatomy.md)
+- [2026-04-24 — The C2H4 label-semantics problem is now visible in the data itself](2026-04-24-c2h4-chemistry-proxy-label-mismatch.md)
