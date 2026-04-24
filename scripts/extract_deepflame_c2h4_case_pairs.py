@@ -34,6 +34,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument('--max-samples-per-pair', type=int, default=None)
     parser.add_argument('--max-abs-delta-p', type=float, default=None)
     parser.add_argument('--max-rel-delta-p', type=float, default=None)
+    parser.add_argument('--max-abs-delta-t', type=float, default=None)
     parser.add_argument('--seed', type=int, default=0)
     return parser.parse_args()
 
@@ -94,10 +95,13 @@ def main() -> None:
             mask &= current[:, 0] > args.frozen_temperature
         abs_delta_p = np.abs(nxt[:, 1] - current[:, 1])
         rel_delta_p = abs_delta_p / np.maximum(np.abs(current[:, 1]), 1.0)
+        abs_delta_t = np.abs(nxt[:, 0] - current[:, 0])
         if args.max_abs_delta_p is not None:
             mask &= abs_delta_p <= args.max_abs_delta_p
         if args.max_rel_delta_p is not None:
             mask &= rel_delta_p <= args.max_rel_delta_p
+        if args.max_abs_delta_t is not None:
+            mask &= abs_delta_t <= args.max_abs_delta_t
         indices = np.flatnonzero(mask)
         if args.max_samples_per_pair is not None and len(indices) > args.max_samples_per_pair:
             indices = rng.choice(indices, size=args.max_samples_per_pair, replace=False)
@@ -121,6 +125,7 @@ def main() -> None:
         'max_samples_per_pair': args.max_samples_per_pair,
         'max_abs_delta_p_filter': args.max_abs_delta_p,
         'max_rel_delta_p_filter': args.max_rel_delta_p,
+        'max_abs_delta_t_filter': args.max_abs_delta_t,
         'seed': args.seed,
         'state_layout': ['T', 'P', *SPECIES, 'T_next', 'P_next', *[f'{s}_next' for s in SPECIES]],
         'note': 'Case-aligned CFD state-pair extractor. These pairs include full CFD evolution between written times, not isolated chemistry-only labels.',
