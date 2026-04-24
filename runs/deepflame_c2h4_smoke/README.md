@@ -52,10 +52,18 @@ Workspace-local staging and startup debugging for the stock DeepFlame C2H4 PyTor
     - continues successfully much farther, with written fields through `4.11e-5`
     - then crashes during the `4.12e-5` DNN step with a segmentation fault in DeepFlame `solve_DNN`
     - current interpretation: GPU inference materially extends horizon versus CPU, but the next limiter looks like a DeepFlame runtime / communication failure rather than an obvious written-field chemistry pathology
+    - source-level diagnosis points to a likely mismatch between the stock example’s implicit `np=8`, `coresPerNode=8` grouping assumption and our reduced-rank `np=2` smoke setup
     - summary artifacts:
       - `/root/workspace/artifacts/experiments/deepflame_c2h4_smoke_analysis/c2h4_stock_baseline_np2_gpu_failure_summary.json`
       - `/root/workspace/artifacts/experiments/deepflame_c2h4_smoke_analysis/c2h4_stock_baseline_np2_gpu_fields_4.11e-05_vs_2e-05.json`
       - `/root/workspace/artifacts/experiments/deepflame_c2h4_smoke_analysis/c2h4_cpu_vs_gpu_long_horizon_summary.json`
+
+- `c2h4_stock_baseline_np2_gpu_cpn2/`
+  - copied from the GPU path and changed to `coresPerNode 2`
+  - result:
+    - not yet an operationally good fix
+    - attempt was slow enough to be manually stopped
+    - interpretation: matching `coresPerNode` to `-np` is not yet a demonstrated practical solution by itself
 
 ## Current interpretation
 
