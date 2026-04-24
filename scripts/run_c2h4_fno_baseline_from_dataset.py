@@ -28,6 +28,12 @@ def parse_args() -> argparse.Namespace:
     p.add_argument('--mech', default=str(DEFAULT_MECH))
     p.add_argument('--target-mode', default='species_only', choices=['species_only', 'species_power_delta'])
     p.add_argument('--power-lambda', type=float, default=0.1)
+    p.add_argument('--width', type=int, default=32)
+    p.add_argument('--modes', type=int, default=8)
+    p.add_argument('--n-layers', type=int, default=4)
+    p.add_argument('--attention-heads', type=int, default=0)
+    p.add_argument('--attention-layers', type=int, default=0)
+    p.add_argument('--attention-dropout', type=float, default=0.0)
     p.add_argument('--note', default='C2H4 FNO baseline from explicit dataset.')
     return p.parse_args()
 
@@ -67,10 +73,13 @@ from dfode_kit.training.train import train
 from dfode_kit.training.config import TrainingConfig, ModelConfig, OptimizerConfig, TrainerConfig
 cfg = TrainingConfig(
     model=ModelConfig(name='fno1d', params={{
-        'width': 32,
-        'modes': 8,
-        'n_layers': 4,
+        'width': {args.width},
+        'modes': {args.modes},
+        'n_layers': {args.n_layers},
         'activation': 'gelu',
+        'attention_heads': {args.attention_heads},
+        'attention_layers': {args.attention_layers},
+        'attention_dropout': {args.attention_dropout},
     }}),
     optimizer=OptimizerConfig(name='adam', lr={args.lr}),
     trainer=TrainerConfig(
@@ -112,6 +121,12 @@ train('{mech}', '{dataset}', '{ckpt}', {DT}, cfg)
         'export': export_info,
         'target_mode': args.target_mode,
         'power_lambda': args.power_lambda,
+        'model_width': args.width,
+        'model_modes': args.modes,
+        'model_n_layers': args.n_layers,
+        'attention_heads': args.attention_heads,
+        'attention_layers': args.attention_layers,
+        'attention_dropout': args.attention_dropout,
         'note': args.note,
     }
     summary_path.parent.mkdir(parents=True, exist_ok=True)

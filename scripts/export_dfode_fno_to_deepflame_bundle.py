@@ -79,13 +79,16 @@ class SpectralConv1d(torch.nn.Module):
 
 
 class FNO1d(torch.nn.Module):
-    def __init__(self, *, input_tokens: int, output_tokens: int, width: int, modes: int, n_layers: int, activation: str) -> None:
+    def __init__(self, *, input_tokens: int, output_tokens: int, width: int, modes: int, n_layers: int, activation: str, attention_heads: int = 0, attention_layers: int = 0, attention_dropout: float = 0.0) -> None:
         super().__init__()
         self.input_tokens = input_tokens
         self.output_tokens = output_tokens
         self.width = width
         self.modes = min(modes, input_tokens // 2 + 1)
         self.n_layers = n_layers
+        self.attention_heads = attention_heads
+        self.attention_layers = attention_layers
+        self.attention_dropout = attention_dropout
         self.lift = torch.nn.Linear(1, width)
         self.spectral_layers = torch.nn.ModuleList(
             [SpectralConv1d(width, width, self.modes) for _ in range(n_layers)]
@@ -93,6 +96,19 @@ class FNO1d(torch.nn.Module):
         self.pointwise_layers = torch.nn.ModuleList(
             [torch.nn.Conv1d(width, width, kernel_size=1) for _ in range(n_layers)]
         )
+        self.attention_norms = torch.nn.ModuleList()
+        self.attention_layers_seq = torch.nn.ModuleList()
+        self.attention_ffn_norms = torch.nn.ModuleList()
+        self.attention_ffns = torch.nn.ModuleList()
+        for _ in range(attention_layers):
+            self.attention_norms.append(torch.nn.LayerNorm(width))
+            self.attention_layers_seq.append(torch.nn.MultiheadAttention(width, attention_heads, dropout=attention_dropout, batch_first=True))
+            self.attention_ffn_norms.append(torch.nn.LayerNorm(width))
+            self.attention_ffns.append(torch.nn.Sequential(
+                torch.nn.Linear(width, width),
+                _make_activation(activation),
+                torch.nn.Linear(width, width),
+            ))
         self.project_channels = torch.nn.Sequential(
             torch.nn.Linear(width, width),
             _make_activation(activation),
@@ -107,6 +123,11 @@ class FNO1d(torch.nn.Module):
         for spectral, pointwise in zip(self.spectral_layers, self.pointwise_layers):
             x = self.activation(spectral(x) + pointwise(x))
         x = x.permute(0, 2, 1)
+        for norm, attn, ffn_norm, ffn in zip(self.attention_norms, self.attention_layers_seq, self.attention_ffn_norms, self.attention_ffns):
+            attn_in = norm(x)
+            attn_out, _ = attn(attn_in, attn_in, attn_in, need_weights=False)
+            x = x + attn_out
+            x = x + ffn(ffn_norm(x))
         x = self.project_channels(x).squeeze(-1)
         return self.project_tokens(x)
 
@@ -184,6 +205,9 @@ try:
         modes=int(meta['modes']),
         n_layers=int(meta['n_layers']),
         activation=str(meta['activation']),
+        attention_heads=int(meta.get('attention_heads', 0)),
+        attention_layers=int(meta.get('attention_layers', 0)),
+        attention_dropout=float(meta.get('attention_dropout', 0.0)),
     )
     model.load_state_dict(payload['net'])
     model.eval()
@@ -317,6 +341,9 @@ def build_export_payload(checkpoint: dict) -> dict:
             'modes': int(params.get('modes', 8)),
             'n_layers': int(params.get('n_layers', 4)),
             'activation': str(params.get('activation', 'gelu')),
+            'attention_heads': int(params.get('attention_heads', 0)),
+            'attention_layers': int(params.get('attention_layers', 0)),
+            'attention_dropout': float(params.get('attention_dropout', 0.0)),
             'target_mode': str(trainer_params.get('target_mode', 'species_only')),
             'power_lambda': float(trainer_params.get('power_lambda', POWER_LAMBDA)),
             'export_type': 'dfode_fno_to_deepflame_bundle',
@@ -341,6 +368,9 @@ def _predict_original_species(checkpoint: dict, state: np.ndarray) -> np.ndarray
         modes=int(params.get('modes', 8)),
         n_layers=int(params.get('n_layers', 4)),
         activation=str(params.get('activation', 'gelu')),
+        attention_heads=int(params.get('attention_heads', 0)),
+        attention_layers=int(params.get('attention_layers', 0)),
+        attention_dropout=float(params.get('attention_dropout', 0.0)),
     )
     model.load_state_dict(checkpoint['net'])
     model.eval()
@@ -383,6 +413,9 @@ def _predict_exported_species(payload: dict, state: np.ndarray) -> np.ndarray:
         modes=int(meta['modes']),
         n_layers=int(meta['n_layers']),
         activation=str(meta['activation']),
+        attention_heads=int(meta.get('attention_heads', 0)),
+        attention_layers=int(meta.get('attention_layers', 0)),
+        attention_dropout=float(meta.get('attention_dropout', 0.0)),
     )
     model.load_state_dict(payload['net'])
     model.eval()
