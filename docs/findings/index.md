@@ -98,3 +98,4 @@ This section publishes structured findings from paper reading, implementation, b
 - [2026-04-24 — Early-to-late C2H4 curriculum test: structured late-data exposure helps more than naive concatenation, but still destabilizes before `5e-6`](2026-04-24-c2h4-early-to-late-curriculum.md)
 - [2026-04-24 — Gentle C2H4 curriculum test: a much smaller late-stage update survives to `5e-6`, but it does so by trading back a large amount of thermodynamic quality](2026-04-24-c2h4-gentle-curriculum.md)
 - [2026-04-24 — Staged C2H4 deployment switch (`dp100 -> gentle curriculum` at `4e-6`): regime-aware deployment looks more promising than a single full-start late-enriched model](2026-04-24-c2h4-staged-dp100-to-curriculum-switch.md)
+- [2026-04-24 — C2H4 staged-switch timing sweep: later switches are better, and `4.5e-6` is the strongest tested compromise](2026-04-24-c2h4-switch-time-sweep.md)
