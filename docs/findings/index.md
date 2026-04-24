@@ -78,3 +78,4 @@ This section publishes structured findings from paper reading, implementation, b
 - [2026-04-23 — DeepFlame C2H4 GPU runtime diagnosis: the long-horizon GPU crash is likely a rank-group communication issue in `solve_DNN`, and the stock examples implicitly expect `mpirun -np 8` to match `coresPerNode 8`](2026-04-23-deepflame-c2h4-gpu-runtime-diagnosis.md)
 - [2026-04-23 — DeepFlame C2H4 stock `np=8` GPU smoke: stock-style rank count restores nonzero learned activity and now runs cleanly through `5e-6`](2026-04-23-deepflame-c2h4-np8-gpu-smoke.md)
 - [2026-04-24 — C2H4 FNO integration plan after the stock `np=8` GPU baseline](2026-04-24-c2h4-fno-integration-plan.md)
+- [2026-04-24 — First C2H4 FNO smoke baseline: mechanism- and timestep-aligned offline prototype trained and exported into a DeepFlame bundle](2026-04-24-c2h4-fno-smoke-baseline.md)
