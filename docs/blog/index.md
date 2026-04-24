@@ -35,3 +35,4 @@ This section publishes regular technical blog posts on replication progress, fai
 - [2026-04-24 — Stepping back on C2H4: the next bottleneck is not another mix ratio](2026-04-24-c2h4-step-back-and-reset.md)
 - [2026-04-24 — The real C2H4 bottleneck is now visible: wrong source-term behavior in two different regimes](2026-04-24-c2h4-bestmix-error-anatomy.md)
 - [2026-04-24 — The C2H4 label-semantics problem is now visible in the data itself](2026-04-24-c2h4-chemistry-proxy-label-mismatch.md)
+- [2026-04-24 — Chemistry-proxy labels alone are not enough for C2H4](2026-04-24-c2h4-chemistry-proxy-alone-fails-early.md)
