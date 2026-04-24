@@ -1,0 +1,15 @@
+\begin{table}[t]
+\centering
+\small
+\caption{C$_2$H$_4$ deployment-facing summary at $5\times10^{-6}$ for the stock baseline, the current best mixed model, and a naive partial chemistry-proxy relabeling ablation.}
+\label{tab:c2h4-runtime-summary}
+\begin{tabular}{p{3.1cm}rrrrr}
+\toprule
+Model & Mean $\dot{Q}$ & $\dot{Q}$/stock & $p_{\max}$ (Pa) & $T_{\min}$ (K) & mean $|\Delta T|$ (K) \\
+\midrule
+Stock DeepFlame & 1.62e+07 & 1.000 & 1.02e+05 & 499.249 & 0.828 \\
+Best mixed ($dp100+canon@0.2$) & 2.51e+07 & 1.551 & 1.03e+05 & 499.159 & 0.927 \\
+Partial chem-proxy (10\%) & -9.88e+08 & -60.952 & 1.03e+05 & 492.524 & 9.153 \\
+\bottomrule
+\end{tabular}
+\end{table}

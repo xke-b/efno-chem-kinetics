@@ -19,6 +19,9 @@
 ## References and paths
 - Papers directory: `/root/workspace/papers`
 - EFNO paper PDF: `/root/workspace/papers/Weng et al. - 2025 - Extended Fourier Neural Operators to learn stiff c.pdf`
+- Manuscript directory: `/root/workspace/manuscript`
+- Manuscript writing guidance directory: `/root/workspace/manuscript/guidelines`
+- Manuscript writing guidance README: `/root/workspace/manuscript/guidelines/README.md`
 - OpenFOAM root: `/opt/openfoam7`
 - DeepFlame repo: `/opt/src/deepflame-dev`
 - DFODE-kit repo: `/opt/src/DFODE-kit`
@@ -34,7 +37,9 @@
 - Write and organize docs continuously, not only at the end.
 - Write technical blog posts regularly as work progresses, with more frequent updates than before; many people are following the work and expect a steady public record of progress.
 - Treat the manuscript as a living deliverable, not an end-stage afterthought: whenever enough evidence exists, update the LaTeX draft, stabilize section claims, and turn key findings into manuscript-ready figures and tables.
+- Keep `/root/workspace/manuscript/guidelines/README.md` updated as the project accumulates manuscript-writing conventions, title/abstract guidance, peer-review preparation notes, and publisher/journal best practices gathered from the web.
 - Prefer work that increases end-to-end paper readiness for the target study "EFNO applied to H2 and C2H4 surrogate chemistry in CFD": implementation fidelity, deployment evidence, negative results, and clear claim boundaries are all valuable.
+- Prefer titles and abstracts that foreground the paper's substantive contribution and scope. Avoid low-impact framing such as `Reproducing`, `Towards`, or `Preliminary study` in the title unless reproducibility itself is the paper's main contribution.
 - When choosing between nearby tuning sweeps and a task that strengthens the final implementation story or manuscript evidence chain, prefer the latter unless the sweep clearly resolves a major uncertainty.
 - Treat use of the `exa-search` skill for web search and broader information exposure as a high-priority action whenever external documentation, code references, or current scientific context could reduce uncertainty.
 - Carefully examine the other papers in `/root/workspace/papers` and reference them where they inform implementation choices, benchmark design, evaluation criteria, data workflows, or coupled-CFD relevance.

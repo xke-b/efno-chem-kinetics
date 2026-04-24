@@ -5,7 +5,7 @@
 \usepackage{amsmath}
 \usepackage{hyperref}
 \usepackage{enumitem}
-\title{Reproducing and Deploying Neural Stiff-Chemistry Surrogates in DeepFlame:\\Implementation Pitfalls, Coupled-Solver Safeguards, and the Importance of Target Semantics}
+\title{Neural Stiff-Chemistry Surrogates in DeepFlame:\\Implementation Pitfalls, Coupled-Solver Safeguards, and Target Semantics for H$_2$ and C$_2$H$_4$}
 \author{Project draft generated from experiment record}
 \date{\today}
 
@@ -13,108 +13,59 @@
 \maketitle
 
 \begin{abstract}
-This draft manuscript summarizes the current state of the EFNO replication-and-deployment program. The strongest present story is not a final claim of solved CFD-coupled chemistry replacement, but a reproducible evidence chain showing: (1) EFNO-style stiff-chemistry surrogates are highly sensitive to implementation details, including a consequential transformed-state decode bug; (2) offline accuracy and rollout metrics do not directly predict coupled DeepFlame usefulness; (3) H$_2$ deployment requires thermodynamic diagnostics and guarded hybrid policies to remain solver-usable; and (4) for the more difficult C$_2$H$_4$ case, data construction and label semantics appear to dominate the remaining error budget. The manuscript is organized as a reviewable partial-results paper with explicit negative results, deployment failures, and reproducible artifacts.
+This draft manuscript summarizes the current state of an EFNO-oriented stiff-chemistry implementation and deployment program for H$_2$ and C$_2$H$_4$ inside DeepFlame. The strongest present story is not a final claim of solved CFD-coupled chemistry replacement, but an evidence chain showing: (1) EFNO-style stiff-chemistry surrogates are highly sensitive to implementation details, including a consequential transformed-state decode bug; (2) offline accuracy and rollout metrics do not directly predict coupled DeepFlame usefulness; (3) H$_2$ deployment requires thermodynamic diagnostics and guarded hybrid policies to remain solver-usable; and (4) for the more difficult C$_2$H$_4$ case, data construction and label semantics appear to dominate the remaining error budget. The manuscript is therefore organized as a reviewable partial-results paper with explicit negative results, deployment failures, and reproducible artifacts.
 \end{abstract}
 
 \section{Introduction}
-\begin{itemize}[leftmargin=1.5em]
-  \item Motivation: stiff chemistry surrogates for CFD are attractive, but deployment-facing evidence is scarce.
-  \item Target problem: reproduce EFNO-style ideas faithfully enough to test offline and in DeepFlame coupled runs.
-  \item Main thesis of current draft: implementation correctness, deployment contract alignment, and target semantics matter at least as much as model family choice.
-\end{itemize}
+Stiff chemistry surrogates are attractive for CFD because conventional chemistry integration remains expensive, but the deployment-facing evidence base for neural surrogates is still thin. This project targets a faithful EFNO-style implementation study for H$_2$ and C$_2$H$_4$ inside DeepFlame, with emphasis on what survives coupled deployment rather than only what looks good offline.
 
 \section{Background and related work}
-\begin{itemize}[leftmargin=1.5em]
-  \item Weng et al. EFNO paper and extracted implementation ambiguities.
-  \item Local-paper crosswalk: Li 2025, Xiao 2026, Li 2026 DFODE-Kit.
-  \item Why C$_2$H$_4$ requires stronger data-generation and target-semantics care than H$_2$.
-\end{itemize}
+The manuscript is grounded in the EFNO paper by Weng et al. and a local-paper crosswalk covering data generation, augmentation, and coupled-validation issues from related combustion-chemistry learning papers. A recurring theme from both the literature and the present experiments is that model architecture alone is not decisive: data semantics, postprocessing contracts, and deployment diagnostics all materially affect conclusions.
 
 \section{Reproducible workflow and software stack}
-\begin{itemize}[leftmargin=1.5em]
-  \item PDF extraction and spec-first reproduction workflow.
-  \item DFODE-kit extensions: EFNO-style trainer, target modes, evaluator metrics, export bridges.
-  \item DeepFlame integration path for MLP and FNO-style models.
-\end{itemize}
+The implementation workflow combines PDF extraction and structured notes, DFODE-kit extensions for EFNO-style training and evaluation, and DeepFlame export bridges for MLP and FNO-like surrogates. All substantive experiments are documented in the project docs site together with scripts and artifact paths.
 
 \section{Offline H$_2$ reproduction and implementation diagnosis}
-\subsection{Benchmark setup}
-\subsection{Initial EFNO-style baselines and seeded comparisons}
-\subsection{Rollout-consistency failure analysis}
-\subsection{Decode-contract bug and corrected BCT-state update}
-\subsection{Post-fix H$_2$ results}
-
-\paragraph{Current key claims to support}
-\begin{enumerate}[leftmargin=1.5em]
-  \item A transformed-state decode bug materially changed H$_2$ rollout conclusions.
-  \item After correction, rollout-aware EFNO becomes competitive or stronger on rollout-relevant metrics.
-  \item One-step and rollout metrics remain meaningfully decoupled.
-\end{enumerate}
+The H$_2$ program established seeded offline baselines, rollout-aware EFNO-style training, and a key implementation diagnosis: a transformed-state species decode bug materially distorted rollout behavior. After correcting the update rule to act in the proper transformed state space, self-rollout behavior changed qualitatively and the corrected branch became a credible offline reference for deployment-facing work.
 
 \section{DeepFlame-coupled H$_2$: from failure to guarded deployment}
-\subsection{Deployment contract alignment and preserve-last evaluation}
-\subsection{Case-side smoke failures under HP reconstruction}
-\subsection{Risk diagnostics and hybrid fallback design}
-\subsection{Frozen-temperature and logistic-risk guard studies}
-\subsection{Packaged deployment recommendation}
+The H$_2$ coupled study showed that export correctness and offline metrics are not enough. Coupled failures appeared first as HP reconstruction breakdowns, which led to hybrid fallback policies, frozen-temperature gating, and a logistic risk guard. Table~\ref{tab:h2-deployment-summary} summarizes representative operating points for the corrected branch.
 
-\paragraph{Current key claims to support}
-\begin{enumerate}[leftmargin=1.5em]
-  \item Offline deployment-format evaluation can differ substantially from project-side evaluation.
-  \item Guarded hybrid policies are necessary for solver-usable H$_2$ operation.
-  \item The corrected branch supports a credible retention-oriented and safety-oriented deployment pair.
-\end{enumerate}
+\input{tables/h2_deployment_summary.tex}
+
+The H$_2$ evidence supports a reviewable claim that deployment-facing chemistry surrogates require contract alignment and explicit thermodynamic safeguards, not just better offline loss values.
 
 \section{C$_2$H$_4$ baseline establishment and runtime bridge diagnosis}
-\subsection{Stock DeepFlame baseline and GPU runtime constraints}
-\subsection{First FNO integration and bridge/OOM fixes}
-\subsection{Case-pair data path and pressure-filter studies}
-\subsection{Curriculum and scheduled-switch deployment artifacts}
+For C$_2$H$_4$, the program first established a trustworthy stock DeepFlame baseline, diagnosed reduced-rank GPU pitfalls, and repaired the FNO runtime bridge by batching inference. These steps were necessary before data-quality conclusions could be trusted: without them, runtime pathologies could masquerade as model deficiencies.
 
 \section{C$_2$H$_4$ data semantics: what the current best model still gets wrong}
-\subsection{Canonical augmentation path and calibrated mixing}
-\subsection{Best mixed model versus stock at 5e-6}
-\subsection{Two-regime source-term pathology}
-\subsection{Intermediate-species suppression}
-\subsection{Chemistry-proxy relabeling evidence for target mismatch}
+The strongest current C$_2$H$_4$ data result is a calibrated mixed dataset that combines the solver-aligned $dp100$ case-pair backbone with a moderate canonical augmentation component. This mixed model survives to $5\times10^{-6}$ and is substantially better than earlier baselines, but the best-model-vs-stock anatomy shows a structured residual failure: cooler active cells are over-driven, the hot bulk exhibits widespread source-term sign errors, and several late intermediates are still heavily suppressed.
 
-\paragraph{Current key claims to support}
-\begin{enumerate}[leftmargin=1.5em]
-  \item Calibrated canonical enrichment helps more than raw scale-up alone.
-  \item The best current mixed model remains deployment-imperfect in a structured way: over-driving cooler active cells and sign errors in the hot bulk.
-  \item The current full-CFD case-pair labels differ materially from chemistry-only proxy relabeling on key intermediates, supporting the target-semantics hypothesis.
-\end{enumerate}
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.95\linewidth]{../docs/findings/images/c2h4-bestmix-r0p2-vs-stock-5e-06.png}
+  \caption{Matched-mesh comparison between the current best mixed C$_2$H$_4$ model and the stock DeepFlame baseline at $5\times10^{-6}$. The figure highlights temperature-binned source-term mismatch and the strongest mean-ratio species distortions.}
+  \label{fig:c2h4-bestmix-vs-stock}
+\end{figure}
+
+The next diagnostic step showed that the target-semantics hypothesis is real in the data itself: one-step chemistry-proxy relabeling of case-pair current states produces materially different targets, especially on key intermediates. However, deployment tests also showed that semantics-only fixes are not enough in isolation. A tiny pure chemistry-proxy model fails catastrophically by $4\times10^{-7}$, while naive partial replacement of 10\% of labels preserves runtime survival but badly degrades solver-facing quality.
+
+\input{tables/c2h4_runtime_summary.tex}
+
+Table~\ref{tab:c2h4-runtime-summary} makes the current C$_2$H$_4$ claim boundary explicit. The best mixed model is reviewably better than prior baselines, but naive partial chemistry-proxy relabeling is not yet a deployment improvement. This supports the more specific forward hypothesis that semantics must be improved without losing the solver-relevant manifold.
 
 \section{Discussion}
-\begin{itemize}[leftmargin=1.5em]
-  \item Why deployment-facing chemistry surrogate work should report contract alignment, thermodynamic diagnostics, and coupled failure modes.
-  \item Why C$_2$H$_4$ currently looks target-limited rather than purely architecture-limited.
-  \item Limitations: no public EFNO code, partial paper ambiguity, chemistry-proxy relabeling still approximate, current manuscript emphasizes partial results.
-\end{itemize}
+The present evidence supports several broader lessons. First, transformed-state implementation details can dominate empirical conclusions. Second, offline and deployment-facing evaluations can disagree substantially because of postprocessing and thermodynamic contract issues. Third, for the more difficult C$_2$H$_4$ case, the dominant remaining bottleneck appears to be target construction rather than another round of small architectural or mixing sweeps.
 
 \section{Conclusion}
-\begin{itemize}[leftmargin=1.5em]
-  \item H$_2$: corrected implementation plus guards gives a credible deployment story.
-  \item C$_2$H$_4$: stronger data/label semantics are the main forward path.
-  \item Final take-home: offline surrogate success is insufficient without deployment-aware validation.
-\end{itemize}
-
-\section*{Figure and table plan}
-\begin{enumerate}[leftmargin=1.5em]
-  \item H$_2$ corrected-decode versus legacy rollout figure.
-  \item H$_2$ hybrid fallback / frozen-temperature / risk-guard summary table.
-  \item C$_2$H$_4$ stock versus major dataset-family comparison table at 5e-6.
-  \item C$_2$H$_4$ canonical-mix comparison figure.
-  \item C$_2$H$_4$ best-mix versus stock error-anatomy figure.
-  \item C$_2$H$_4$ chemistry-proxy relabeling mismatch table.
-\end{enumerate}
+The current project state is strong enough for a reviewable partial-results paper. For H$_2$, corrected implementation plus guards yields a credible deployment story. For C$_2$H$_4$, the strongest current result is a calibrated mixed-data baseline together with a clear diagnosis that better target semantics are needed, but must be introduced without abandoning the solver-relevant state manifold. The central take-home message is that offline surrogate success is insufficient without deployment-aware validation and explicit thermodynamic diagnostics.
 
 \section*{Immediate remaining tasks before submission}
 \begin{enumerate}[leftmargin=1.5em]
-  \item Convert current docs evidence into stable manuscript figures/tables.
-  \item Add one chemistry-proxy-trained deployment experiment or explicitly scope it as future work if it remains too unstable.
-  \item Fill in citations from extracted local papers and EFNO/OpenAlex notes.
-  \item Install a LaTeX toolchain and compile the draft.
+  \item Add citations from the extracted EFNO notes and local related papers.
+  \item Convert additional current findings into stable manuscript figures/tables.
+  \item Expand the manuscript body from a structured skeleton into a fully referenced narrative.
+  \item Add one more semantics-improvement experiment or scope it explicitly as future work.
 \end{enumerate}
 
 \end{document}
