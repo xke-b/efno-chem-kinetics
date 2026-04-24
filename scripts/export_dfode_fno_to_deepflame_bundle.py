@@ -41,6 +41,7 @@ BCT_LAMBDA = 0.1
 BCT_INVERSE_FLOOR = -1.0 / BCT_LAMBDA + 1e-8
 
 device_main = \"cuda:0\"
+DEFAULT_BATCH_SIZE = 8192
 
 torch.set_printoptions(precision=10)
 
@@ -187,6 +188,44 @@ except Exception as e:
     print(e.args)
 
 
+def _run_model_in_batches(vec0_input):
+    outputs = []
+    batch_size = DEFAULT_BATCH_SIZE
+    start = 0
+    while start < vec0_input.shape[0]:
+        stop = min(start + batch_size, vec0_input.shape[0])
+        batch = vec0_input[start:stop]
+        try:
+            with torch.no_grad():
+                rho0 = torch.from_numpy(batch[:, -1:]).to(device=device, dtype=torch.float32)
+                input_y = torch.from_numpy(batch[:, 2:-1].copy()).to(device=device, dtype=torch.float32)
+                input_bct_np = batch[:, 0:-1].copy()
+                input_bct_np[:, 2:] = _bct(np.clip(input_bct_np[:, 2:], 0.0, 1.0))
+                input_bct = torch.from_numpy(input_bct_np).to(device=device, dtype=torch.float32)
+                input_norm = (input_bct - Xmu) / Xstd
+                output_norm = model(input_norm)
+                output_raw = output_norm * Ystd + Ymu
+
+                output_bct = torch.clamp(input_bct[:, 2:-1] + output_raw, min=BCT_INVERSE_FLOOR)
+                output_main = _inverse_bct(output_bct.detach().cpu().numpy())
+                output_y = input_y.clone()
+                output_y[:, :-1] = torch.from_numpy(output_main).to(device=device, dtype=torch.float32)
+                denom = torch.sum(output_y[:, :-1], dim=1, keepdim=True)
+                output_y[:, :-1] = output_y[:, :-1] / torch.clamp(denom, min=1e-12) * (1 - output_y[:, -1:])
+                output = (output_y - input_y) * rho0 / delta_t
+                outputs.append(output.cpu().numpy())
+                start = stop
+        except RuntimeError as e:
+            if 'out of memory' not in str(e).lower() or batch_size <= 1:
+                raise
+            if device.type == 'cuda':
+                torch.cuda.empty_cache()
+            batch_size = max(1, batch_size // 2)
+            print(f'FNO inference batch OOM, retrying with batch_size={batch_size}')
+    return np.vstack(outputs) if outputs else np.zeros((0, n_species), dtype=np.float64)
+
+
+
 def inference(vec0):
     vec0 = np.abs(np.reshape(vec0, (-1, 3 + n_species)))
     vec0[:, 1] *= 101325
@@ -198,27 +237,10 @@ def inference(vec0):
         if vec0_input.shape[0] == 0:
             return np.zeros((vec0.shape[0], n_species), dtype=np.float64)
 
-        with torch.no_grad():
-            rho0 = torch.from_numpy(vec0_input[:, -1:]).to(device=device, dtype=torch.float32)
-            input_y = torch.from_numpy(vec0_input[:, 2:-1].copy()).to(device=device, dtype=torch.float32)
-            input_bct_np = vec0_input[:, 0:-1].copy()
-            input_bct_np[:, 2:] = _bct(np.clip(input_bct_np[:, 2:], 0.0, 1.0))
-            input_bct = torch.from_numpy(input_bct_np).to(device=device, dtype=torch.float32)
-            input_norm = (input_bct - Xmu) / Xstd
-            output_norm = model(input_norm)
-            output_raw = output_norm * Ystd + Ymu
-
-            output_bct = torch.clamp(input_bct[:, 2:-1] + output_raw, min=BCT_INVERSE_FLOOR)
-            output_y = input_y.clone()
-            output_y[:, :-1] = torch.from_numpy(_inverse_bct(output_bct.detach().cpu().numpy())).to(device=device, dtype=torch.float32)
-            denom = torch.sum(output_y[:, :-1], dim=1, keepdim=True)
-            output_y[:, :-1] = output_y[:, :-1] / torch.clamp(denom, min=1e-12) * (1 - output_y[:, -1:])
-            output = (output_y - input_y) * rho0 / delta_t
-            output = output.cpu().numpy()
-
-            result = np.zeros((vec0.shape[0], n_species), dtype=np.float64)
-            result[mask, :] = output
-            return result
+        output = _run_model_in_batches(vec0_input)
+        result = np.zeros((vec0.shape[0], n_species), dtype=np.float64)
+        result[mask, :] = output
+        return result
     except Exception as e:
         print(e.args)
         return np.zeros((vec0.shape[0], n_species), dtype=np.float64)
