@@ -10,3 +10,4 @@ This section publishes regular technical blog posts on replication progress, fai
 - [2026-04-24 — First C2H4 FNO integration smoke passed](2026-04-24-c2h4-fno-integration-smoke.md)
 - [2026-04-24 — The first C2H4 FNO-integrated case reaches `9e-7` and then fails during the `1e-6` attempt](2026-04-24-c2h4-fno-to-1e-6-attempt.md)
 - [2026-04-24 — The first C2H4 FNO failure looks thermodynamic before it looks off-simplex](2026-04-24-c2h4-fno-prefailure-comparison.md)
+- [2026-04-24 — The C2H4 smoke dataset is badly mismatched to the real case, and a first case-aligned extractor now exists](2026-04-24-c2h4-case-data-path.md)
