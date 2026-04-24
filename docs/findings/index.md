@@ -100,3 +100,4 @@ This section publishes structured findings from paper reading, implementation, b
 - [2026-04-24 — Staged C2H4 deployment switch (`dp100 -> gentle curriculum` at `4e-6`): regime-aware deployment looks more promising than a single full-start late-enriched model](2026-04-24-c2h4-staged-dp100-to-curriculum-switch.md)
 - [2026-04-24 — C2H4 staged-switch timing sweep: later switches are better, and `4.5e-6` is the strongest tested compromise](2026-04-24-c2h4-switch-time-sweep.md)
 - [2026-04-24 — C2H4 scheduled-switch packaging: the manual late-horizon switch can now be reproduced as a reusable case generator](2026-04-24-c2h4-scheduled-switch-packaging.md)
+- [2026-04-24 — Data-generation and augmentation ideas from the other local papers: the strongest inspiration for C2H4 is interpolation-balanced canonical data plus physics-constrained perturbation and filtering](2026-04-24-c2h4-data-generation-ideas-from-local-papers.md)
