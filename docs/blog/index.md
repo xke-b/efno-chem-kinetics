@@ -24,3 +24,4 @@ This section publishes regular technical blog posts on replication progress, fai
 - [2026-04-24 — Repeating the better C2H4 subset more often did not help](2026-04-24-c2h4-weighted-mix-regression.md)
 - [2026-04-24 — The missing late C2H4 chemistry is real, but naive early+late mixing fails](2026-04-24-c2h4-late-data-is-real-but-naive-mixing-fails.md)
 - [2026-04-24 — A simple C2H4 curriculum beats naive early+late mixing, but not the dp100 baseline](2026-04-24-c2h4-curriculum-beats-naive-mixing.md)
+- [2026-04-24 — A gentler C2H4 curriculum finally survives to `5e-6`, but it is not better than dp100](2026-04-24-c2h4-gentle-curriculum-reaches-5e-6.md)
