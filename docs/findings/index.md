@@ -81,3 +81,4 @@ This section publishes structured findings from paper reading, implementation, b
 - [2026-04-24 — First C2H4 FNO smoke baseline: mechanism- and timestep-aligned offline prototype trained and exported into a DeepFlame bundle](2026-04-24-c2h4-fno-smoke-baseline.md)
 - [2026-04-24 — First C2H4 FNO integration smoke: the exported FNO bundle loads into the stock DeepFlame C2H4 case and runs cleanly through `5e-7`](2026-04-24-c2h4-fno-first-integration-smoke.md)
 - [2026-04-24 — Extending the first C2H4 FNO integration case toward `1e-6`: it survives through `9e-7` and then fails in HP reconstruction during the `1e-6` attempt](2026-04-24-c2h4-fno-integration-extension-to-1e-6.md)
+- [2026-04-24 — C2H4 FNO vs stock pre-failure comparison at `8e-7`: the first integrated FNO case fails thermodynamically before it fails chemically on-simplex](2026-04-24-c2h4-fno-vs-stock-prefailure-comparison.md)
