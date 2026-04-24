@@ -12,3 +12,4 @@ This section publishes regular technical blog posts on replication progress, fai
 - [2026-04-24 — The first C2H4 FNO failure looks thermodynamic before it looks off-simplex](2026-04-24-c2h4-fno-prefailure-comparison.md)
 - [2026-04-24 — The C2H4 smoke dataset is badly mismatched to the real case, and a first case-aligned extractor now exists](2026-04-24-c2h4-case-data-path.md)
 - [2026-04-24 — The first case-aligned C2H4 FNO reaches `1e-6`](2026-04-24-c2h4-casepair-fno-1e-6.md)
+- [2026-04-24 — The case-aligned C2H4 FNO reaches `5e-6`, but late-time trust is not solved yet](2026-04-24-c2h4-casepair-fno-5e-6-caveat.md)
