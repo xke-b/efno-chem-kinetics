@@ -14,3 +14,4 @@ This section publishes regular technical blog posts on replication progress, fai
 - [2026-04-24 — The first case-aligned C2H4 FNO reaches `1e-6`](2026-04-24-c2h4-casepair-fno-1e-6.md)
 - [2026-04-24 — The case-aligned C2H4 FNO reaches `5e-6`, but late-time trust is not solved yet](2026-04-24-c2h4-casepair-fno-5e-6-caveat.md)
 - [2026-04-24 — The late C2H4 FNO `5e-6` issue was partly a bridge problem, and batching fixes it](2026-04-24-c2h4-fno-batched-bridge-fix.md)
+- [2026-04-24 — The full batched C2H4 case-aligned FNO run now reaches `5e-6` cleanly](2026-04-24-c2h4-batched-full-5e-6.md)
