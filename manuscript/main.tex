@@ -29,7 +29,7 @@ The implementation workflow combines PDF extraction and structured notes, DFODE-
 The H$_2$ program established seeded offline baselines, rollout-aware EFNO-style training, and a key implementation diagnosis: a transformed-state species decode bug materially distorted rollout behavior. After correcting the update rule to act in the proper transformed state space, self-rollout behavior changed qualitatively and the corrected branch became a credible offline reference for deployment-facing work.
 
 \section{DeepFlame-coupled H$_2$: from failure to guarded deployment}
-The H$_2$ coupled study showed that export correctness and offline metrics are not enough. Coupled failures appeared first as HP reconstruction breakdowns, which led to hybrid fallback policies, frozen-temperature gating, and a logistic risk guard. Table~\ref{tab:h2-deployment-summary} summarizes representative operating points for the corrected branch.
+The H$_2$ coupled study showed that export correctness and offline metrics are not enough. Coupled failures appeared first as HP reconstruction breakdowns, which led to hybrid fallback policies, frozen-temperature gating, and a logistic risk guard. Table~\ref{tab:h2-deployment-summary} summarizes representative operating points for the corrected branch. In the present evidence base, $650$~K gives the strongest long-horizon single-threshold retention, while the logistic risk guard at threshold $0.5$ provides a more safety-oriented mode with lower HP-failure exposure at some cost in learned participation.
 
 \input{tables/h2_deployment_summary.tex}
 
@@ -48,11 +48,13 @@ The strongest current C$_2$H$_4$ data result is a calibrated mixed dataset that 
   \label{fig:c2h4-bestmix-vs-stock}
 \end{figure}
 
-The next diagnostic step showed that the target-semantics hypothesis is real in the data itself: one-step chemistry-proxy relabeling of case-pair current states produces materially different targets, especially on key intermediates. However, deployment tests also showed that semantics-only fixes are not enough in isolation. A tiny pure chemistry-proxy model fails catastrophically by $4\times10^{-7}$, while naive partial replacement of 10\% of labels preserves runtime survival but badly degrades solver-facing quality.
+The next diagnostic step showed that the target-semantics hypothesis is real in the data itself: one-step chemistry-proxy relabeling of case-pair current states produces materially different targets, especially on key intermediates. Table~\ref{tab:c2h4-error-anatomy} summarizes the most distorted active-region species in the current best mixed model, while Table~\ref{tab:c2h4-chemproxy-mismatch} shows that the original CFD next-state labels differ materially from chemistry-proxy relabels on a sampled subset. However, deployment tests also showed that semantics-only fixes are not enough in isolation. A tiny pure chemistry-proxy model fails catastrophically by $4\times10^{-7}$, while naive partial replacement of 10\% of labels preserves runtime survival but badly degrades solver-facing quality.
 
 \input{tables/c2h4_runtime_summary.tex}
+\input{tables/c2h4_error_anatomy_summary.tex}
+\input{tables/c2h4_chemproxy_mismatch_summary.tex}
 
-Table~\ref{tab:c2h4-runtime-summary} makes the current C$_2$H$_4$ claim boundary explicit. The best mixed model is reviewably better than prior baselines, but naive partial chemistry-proxy relabeling is not yet a deployment improvement. This supports the more specific forward hypothesis that semantics must be improved without losing the solver-relevant manifold.
+Table~\ref{tab:c2h4-runtime-summary} makes the current C$_2$H$_4$ claim boundary explicit. The best mixed model is reviewably better than prior baselines, but naive partial chemistry-proxy relabeling is not yet a deployment improvement. Tables~\ref{tab:c2h4-error-anatomy} and \ref{tab:c2h4-chemproxy-mismatch} sharpen the interpretation: the remaining gap is tied both to suppressed intermediate chemistry in deployment and to a measurable mismatch between full-CFD and chemistry-only target semantics. This supports the more specific forward hypothesis that semantics must be improved without losing the solver-relevant manifold.
 
 \section{Discussion}
 The present evidence supports several broader lessons. First, transformed-state implementation details can dominate empirical conclusions. Second, offline and deployment-facing evaluations can disagree substantially because of postprocessing and thermodynamic contract issues. Third, for the more difficult C$_2$H$_4$ case, the dominant remaining bottleneck appears to be target construction rather than another round of small architectural or mixing sweeps.
@@ -63,9 +65,9 @@ The current project state is strong enough for a reviewable partial-results pape
 \section*{Immediate remaining tasks before submission}
 \begin{enumerate}[leftmargin=1.5em]
   \item Add citations from the extracted EFNO notes and local related papers.
-  \item Convert additional current findings into stable manuscript figures/tables.
+  \item Package at least one H$_2$ offline corrected-decode figure and one H$_2$ coupled-timeline figure.
   \item Expand the manuscript body from a structured skeleton into a fully referenced narrative.
-  \item Add one more semantics-improvement experiment or scope it explicitly as future work.
+  \item Replace naive semantics-only C$_2$H$_4$ relabeling with a more selective semantics-improvement experiment, or scope that step explicitly as future work.
 \end{enumerate}
 
 \end{document}

@@ -88,9 +88,63 @@ Mode & Learned frac. at $2\times10^{{-5}}$ & Cum. fallback frac. at $2\times10^{
 
 
 
+def c2h4_error_anatomy_table() -> None:
+    comp = json.loads((ART / 'deepflame_c2h4_smoke_analysis' / 'c2h4_bestmix_r0p2_vs_stock_5e-06.json').read_text())
+    rows = []
+    for rec in comp['ranked_species_distortions'][:6]:
+        rows.append((rec['species'], rec['stock_mean'], rec['model_mean'], rec['model_to_stock_mean_ratio']))
+    body = '\n'.join(
+        f"{name} & {fmt(stock)} & {fmt(model)} & {fmt(ratio)} \\\\" for name, stock, model, ratio in rows
+    )
+    tex = rf"""\begin{{table}}[t]
+\centering
+\small
+\caption{{Largest active-region species distortions for the current best mixed C$_2$H$_4$ model relative to stock at $5\times10^{{-6}}$.}}
+\label{{tab:c2h4-error-anatomy}}
+\begin{{tabular}}{{lrrr}}
+\toprule
+Species & Stock mean & Model mean & Model/stock \\
+\midrule
+{body}
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+"""
+    write(OUT / 'c2h4_error_anatomy_summary.tex', tex)
+
+
+
+def c2h4_chemproxy_mismatch_table() -> None:
+    relabel = json.loads((ART / 'deepflame_c2h4_smoke_analysis' / 'c2h4_dp100_cfd_vs_chemistry_proxy_5k_summary.json').read_text())
+    rows = []
+    for rec in relabel['ranked_key_species_shift'][:6]:
+        rows.append((rec['species'], rec['orig_mean_next'], rec['chem_mean_next'], rec['chem_to_orig_mean_ratio']))
+    body = '\n'.join(
+        f"{name} & {fmt(orig)} & {fmt(chem)} & {fmt(ratio)} \\\\" for name, orig, chem, ratio in rows
+    )
+    tex = rf"""\begin{{table}}[t]
+\centering
+\small
+\caption{{Largest mean-ratio shifts between original CFD next-state labels and chemistry-proxy relabels on a 5k-row C$_2$H$_4$ subset.}}
+\label{{tab:c2h4-chemproxy-mismatch}}
+\begin{{tabular}}{{lrrr}}
+\toprule
+Species & Original next mean & Chemistry-proxy next mean & Chem/original \\
+\midrule
+{body}
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+"""
+    write(OUT / 'c2h4_chemproxy_mismatch_summary.tex', tex)
+
+
+
 def main() -> None:
     c2h4_table()
     h2_table()
+    c2h4_error_anatomy_table()
+    c2h4_chemproxy_mismatch_table()
     print(json.dumps({'tables_dir': str(OUT.resolve())}, indent=2))
 
 
