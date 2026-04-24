@@ -17,13 +17,13 @@ This draft manuscript summarizes the current state of an EFNO-oriented stiff-che
 \end{abstract}
 
 \section{Introduction}
-Stiff chemistry surrogates are attractive for CFD because conventional chemistry integration remains expensive, but the deployment-facing evidence base for neural surrogates is still thin. This project targets a faithful EFNO-style implementation study for H$_2$ and C$_2$H$_4$ inside DeepFlame, with emphasis on what survives coupled deployment rather than only what looks good offline.
+Stiff chemistry surrogates are attractive for CFD because conventional chemistry integration remains expensive, but the deployment-facing evidence base for neural surrogates is still thin \cite{li2025comprehensive,li2026dfodekit,wu2025nh3h2}. This project targets a faithful EFNO-style implementation study for H$_2$ and C$_2$H$_4$ inside DeepFlame, with emphasis on what survives coupled deployment rather than only what looks good offline.
 
 \section{Background and related work}
-The manuscript is grounded in the EFNO paper by Weng et al. and a local-paper crosswalk covering data generation, augmentation, and coupled-validation issues from related combustion-chemistry learning papers. A recurring theme from both the literature and the present experiments is that model architecture alone is not decisive: data semantics, postprocessing contracts, and deployment diagnostics all materially affect conclusions.
+The manuscript is grounded in the EFNO paper by Weng et al. \cite{weng2025efno} and a local-paper crosswalk covering data generation, augmentation, and coupled-validation issues from related combustion-chemistry learning papers \cite{li2025comprehensive,xiao2026physicsaware,li2026dfodekit,wu2025nh3h2}. Across these papers, a recurring theme is that model architecture alone is not decisive: data semantics, postprocessing contracts, augmentation strategy, and a posteriori validation all materially affect conclusions.
 
 \section{Reproducible workflow and software stack}
-The implementation workflow combines PDF extraction and structured notes, DFODE-kit extensions for EFNO-style training and evaluation, and DeepFlame export bridges for MLP and FNO-like surrogates. All substantive experiments are documented in the project docs site together with scripts and artifact paths.
+The implementation workflow combines PDF extraction and structured notes, DFODE-kit extensions for EFNO-style training and evaluation, and DeepFlame export bridges for MLP and FNO-like surrogates. The software path is deliberately aligned with the emerging DFODE-kit/DeepFlame ecosystem \cite{li2026dfodekit,li2025comprehensive}: data are prepared from canonical or case-aligned thermochemical states, models are trained and evaluated offline with explicit rollout and physical-consistency metrics, and promising checkpoints are exported into DeepFlame for coupled testing. All substantive experiments are documented in the project docs site together with scripts and artifact paths.
 
 \section{Offline H$_2$ reproduction and implementation diagnosis}
 The H$_2$ program established seeded offline baselines, rollout-aware EFNO-style training, and a key implementation diagnosis: a transformed-state species decode bug materially distorted rollout behavior. After correcting the update rule to act in the proper transformed state space, self-rollout behavior changed qualitatively and the corrected branch became a credible offline reference for deployment-facing work. Figure~\ref{fig:h2-corrected-decode} shows that the correction was not a small numerical cleanup: it sharply reduced long-horizon rollout error, especially for the self-rollout branches.
@@ -50,10 +50,10 @@ The H$_2$ coupled study showed that export correctness and offline metrics are n
 The H$_2$ evidence supports a reviewable claim that deployment-facing chemistry surrogates require contract alignment and explicit thermodynamic safeguards, not just better offline loss values.
 
 \section{C$_2$H$_4$ baseline establishment and runtime bridge diagnosis}
-For C$_2$H$_4$, the program first established a trustworthy stock DeepFlame baseline, diagnosed reduced-rank GPU pitfalls, and repaired the FNO runtime bridge by batching inference. These steps were necessary before data-quality conclusions could be trusted: without them, runtime pathologies could masquerade as model deficiencies.
+For C$_2$H$_4$, the program first established a trustworthy stock DeepFlame baseline, diagnosed reduced-rank GPU pitfalls, and repaired the FNO runtime bridge by batching inference. These steps were necessary before data-quality conclusions could be trusted: without them, runtime pathologies could masquerade as model deficiencies. The emphasis on a posteriori validation follows the practice advocated in recent combustion-surrogate studies, which consistently show that apparently strong offline models can still fail once coupled back into CFD \cite{li2025comprehensive,xiao2026physicsaware,wu2025nh3h2}.
 
 \section{C$_2$H$_4$ data semantics: what the current best model still gets wrong}
-The strongest current C$_2$H$_4$ data result is a calibrated mixed dataset that combines the solver-aligned $dp100$ case-pair backbone with a moderate canonical augmentation component. This mixed model survives to $5\times10^{-6}$ and is substantially better than earlier baselines, but the best-model-vs-stock anatomy shows a structured residual failure: cooler active cells are over-driven, the hot bulk exhibits widespread source-term sign errors, and several late intermediates are still heavily suppressed.
+The strongest current C$_2$H$_4$ data result is a calibrated mixed dataset that combines the solver-aligned $dp100$ case-pair backbone with a moderate canonical augmentation component. This mixed model survives to $5\times10^{-6}$ and is substantially better than earlier baselines, but the best-model-vs-stock anatomy shows a structured residual failure: cooler active cells are over-driven, the hot bulk exhibits widespread source-term sign errors, and several late intermediates are still heavily suppressed. The mixed-data direction itself is motivated by nearby literature showing the value of canonical flame manifolds, interpolation-based densification, and physics-aware perturbation for building thermochemical training sets that cover reactive regions more effectively \cite{li2025comprehensive,xiao2026physicsaware,li2026dfodekit}.
 
 \begin{figure}[t]
   \centering
@@ -71,7 +71,7 @@ The next diagnostic step showed that the target-semantics hypothesis is real in 
 Table~\ref{tab:c2h4-runtime-summary} makes the current C$_2$H$_4$ claim boundary explicit. The best mixed model is reviewably better than prior baselines, but naive partial chemistry-proxy relabeling is not yet a deployment improvement. Tables~\ref{tab:c2h4-error-anatomy} and \ref{tab:c2h4-chemproxy-mismatch} sharpen the interpretation: the remaining gap is tied both to suppressed intermediate chemistry in deployment and to a measurable mismatch between full-CFD and chemistry-only target semantics. This supports the more specific forward hypothesis that semantics must be improved without losing the solver-relevant manifold.
 
 \section{Discussion}
-The present evidence supports several broader lessons. First, transformed-state implementation details can dominate empirical conclusions. Second, offline and deployment-facing evaluations can disagree substantially because of postprocessing and thermodynamic contract issues. Third, for the more difficult C$_2$H$_4$ case, the dominant remaining bottleneck appears to be target construction rather than another round of small architectural or mixing sweeps.
+The present evidence supports several broader lessons. First, transformed-state implementation details can dominate empirical conclusions, which reinforces the need to treat reproduction as implementation diagnosis rather than a narrow hyperparameter chase \cite{weng2025efno}. Second, offline and deployment-facing evaluations can disagree substantially because of postprocessing and thermodynamic contract issues, in line with the broader combustion-surrogate literature's emphasis on a posteriori validation \cite{li2025comprehensive,wu2025nh3h2}. Third, for the more difficult C$_2$H$_4$ case, the dominant remaining bottleneck appears to be target construction rather than another round of small architectural or mixing sweeps.
 
 \section{Conclusion}
 The current project state is strong enough for a reviewable partial-results paper. For H$_2$, corrected implementation plus guards yields a credible deployment story. For C$_2$H$_4$, the strongest current result is a calibrated mixed-data baseline together with a clear diagnosis that better target semantics are needed, but must be introduced without abandoning the solver-relevant state manifold. The central take-home message is that offline surrogate success is insufficient without deployment-aware validation and explicit thermodynamic diagnostics.
@@ -83,5 +83,8 @@ The current project state is strong enough for a reviewable partial-results pape
   \item Expand the manuscript body from a structured skeleton into a fully referenced narrative.
   \item Replace naive semantics-only C$_2$H$_4$ relabeling with a more selective semantics-improvement experiment, or scope that step explicitly as future work.
 \end{enumerate}
+
+\bibliographystyle{plain}
+\bibliography{references}
 
 \end{document}
