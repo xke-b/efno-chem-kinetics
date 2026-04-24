@@ -116,6 +116,26 @@ Workspace-local staging and startup debugging for the stock DeepFlame C2H4 PyTor
   - result:
     - cleanly reproduces the `4.5e-6 -> 5e-6` staged switch continuation
 
+- `c2h4_cvode_baseline_np8_stockcopy/`
+  - proper DeepFlame chemistry reference for the C2H4 `1e-6` horizon
+  - baseline chosen:
+    - primary source case: `c2h4_stock_baseline_np8_gpu_stocksrc/`
+    - rationale: same trusted stock-style `np=8` decomposition and case packaging as the learned baseline, but with `TorchSettings { torch off; }` to recover in-loop standard chemistry integration
+  - current settings:
+    - `torch off`
+    - `startFrom startTime`
+    - `endTime 1e-6`
+    - `writeInterval 1e-7`
+  - result:
+    - runs cleanly through `1e-6`
+    - `selectDNN` stays inactive as expected
+    - used as the matched reference for learned-vs-CVODE comparisons at `1e-6`
+  - notes:
+    - a lighter fresh-copy/decompose staging attempt hit a mesh lookup error for `points`; copying the already working stock-source `np=8` case and switching torch off was the reliable workaround
+  - summary artifacts:
+    - `/root/workspace/artifacts/experiments/deepflame_c2h4_smoke_analysis/c2h4_cvode_baseline_np8_fields_1e-06_vs_2e-07.json`
+    - `/root/workspace/artifacts/experiments/deepflame_c2h4_smoke_analysis/c2h4_models_vs_cvode_1e-06_compact_summary.json`
+
 ## Current interpretation
 
 - the stock C2H4 learned path is now staged and runnable in `/root/workspace`
