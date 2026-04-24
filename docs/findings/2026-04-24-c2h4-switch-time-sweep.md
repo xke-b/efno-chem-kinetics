@@ -33,6 +33,15 @@ All three staged-switch cases reached `5e-6` cleanly.
 
 - `/root/workspace/artifacts/experiments/deepflame_c2h4_smoke_analysis/c2h4_gentle_switch_time_sweep_5e-06.json`
 
+## Figure
+
+![C2H4 staged-switch timing sweep summary](images/c2h4-switch-time-sweep.png)
+
+The figure makes the main deployment tradeoff visible at a glance:
+- full-start gentle curriculum is the worst on the broad solver-facing metrics
+- all staged switches are materially better than full-start gentle deployment
+- later switches stay closer to the pure `dp100` baseline
+
 ## Main metrics at `5e-6`
 
 ### Pure `dp100` baseline

@@ -93,6 +93,29 @@ Workspace-local staging and startup debugging for the stock DeepFlame C2H4 PyTor
     - stock-style rank count restores nonzero learned activity under the restored source path
     - this is now the most credible next runtime baseline for C2H4 GPU follow-up
 
+- `c2h4_casepair_dp100_then_gentle_curriculum_from_4.5e-6/`
+  - current best manual staged-switch deployment proof-of-concept
+  - workflow:
+    - run pure `dp100` through `4.5e-6`
+    - switch to the gentle curriculum model only for `4.5e-6 -> 5e-6`
+  - result:
+    - reaches `5e-6` cleanly
+    - stays much closer to pure `dp100` than running the gentle curriculum from `t=0`
+  - summary artifacts:
+    - `/root/workspace/artifacts/experiments/deepflame_c2h4_smoke_analysis/c2h4_gentle_switch_time_sweep_5e-06.json`
+    - `/root/workspace/artifacts/experiments/deepflame_c2h4_smoke_analysis/c2h4_dp100_vs_gentle_full_vs_staged_switch_5e-06.json`
+
+- `c2h4_casepair_dp100_then_gentle_curriculum_from_4.5e-6_generated/`
+  - generator-produced reproduction of the best current manual staged switch
+  - produced by:
+    - `/root/workspace/scripts/create_deepflame_c2h4_scheduled_switch_case.py`
+  - source case:
+    - `c2h4_casepair_dp100_fno_batched_full/`
+  - switch bundle:
+    - `/root/workspace/artifacts/models/c2h4_casepair_dp100_early_to_late_curriculum_gentle_fno_smoke_deepflame_bundle/`
+  - result:
+    - cleanly reproduces the `4.5e-6 -> 5e-6` staged switch continuation
+
 ## Current interpretation
 
 - the stock C2H4 learned path is now staged and runnable in `/root/workspace`

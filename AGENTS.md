@@ -27,6 +27,7 @@
 - Prefer small, reproducible experiments before expensive simulations.
 - Optimize for coupled-simulation usefulness, not only offline ML accuracy.
 - Use the docs site as the default public record of results, decisions, experiment evidence, and organized technical notes.
+- Use Python plotting/imaging tools such as `matplotlib` to generate figures, images, and scalar-field/contour visualizations for experiments and simulations whenever they help communicate results, failure modes, comparisons, or conclusions more clearly.
 - Write and organize docs continuously, not only at the end.
 - Write technical blog posts regularly as work progresses, with more frequent updates than before; many people are following the work and expect a steady public record of progress.
 - Treat use of the `exa-search` skill for web search and broader information exposure as a high-priority action whenever external documentation, code references, or current scientific context could reduce uncertainty.
