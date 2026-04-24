@@ -28,3 +28,4 @@ This section publishes regular technical blog posts on replication progress, fai
 - [2026-04-24 — A staged C2H4 model switch works better than running the late-enriched model from the start](2026-04-24-c2h4-staged-switch-beats-full-start-curriculum.md)
 - [2026-04-24 — For C2H4, later model switches are better](2026-04-24-c2h4-later-switches-are-better.md)
 - [2026-04-24 — The best current C2H4 staged switch is now packaged](2026-04-24-c2h4-scheduled-switch-packaged.md)
+- [2026-04-24 — The first paper-inspired canonical C2H4 data path works — maybe too well](2026-04-24-c2h4-canonical-data-smoke.md)
