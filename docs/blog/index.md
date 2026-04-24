@@ -38,3 +38,4 @@ This section publishes regular technical blog posts on replication progress, fai
 - [2026-04-24 — Chemistry-proxy labels alone are not enough for C2H4](2026-04-24-c2h4-chemistry-proxy-alone-fails-early.md)
 - [2026-04-24 — Partial chemistry-proxy relabeling keeps C2H4 alive — but still makes it worse](2026-04-24-c2h4-partial-relabeling-survives-but-regresses.md)
 - [2026-04-24 — C2H4 targeted relabeling is scientifically sharper — and the first 10% deployment test still fails fast](2026-04-24-c2h4-targeted-relabeling-fails-fast.md)
+- [2026-04-24 — C2H4 targeted 2% relabeling lasts longer than targeted 10% — but it still fails early](2026-04-24-c2h4-targeted-2pct-lasts-longer-but-still-fails.md)
