@@ -1,0 +1,120 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\title{Reproducing and Deploying Neural Stiff-Chemistry Surrogates in DeepFlame:\\Implementation Pitfalls, Coupled-Solver Safeguards, and the Importance of Target Semantics}
+\author{Project draft generated from experiment record}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This draft manuscript summarizes the current state of the EFNO replication-and-deployment program. The strongest present story is not a final claim of solved CFD-coupled chemistry replacement, but a reproducible evidence chain showing: (1) EFNO-style stiff-chemistry surrogates are highly sensitive to implementation details, including a consequential transformed-state decode bug; (2) offline accuracy and rollout metrics do not directly predict coupled DeepFlame usefulness; (3) H$_2$ deployment requires thermodynamic diagnostics and guarded hybrid policies to remain solver-usable; and (4) for the more difficult C$_2$H$_4$ case, data construction and label semantics appear to dominate the remaining error budget. The manuscript is organized as a reviewable partial-results paper with explicit negative results, deployment failures, and reproducible artifacts.
+\end{abstract}
+
+\section{Introduction}
+\begin{itemize}[leftmargin=1.5em]
+  \item Motivation: stiff chemistry surrogates for CFD are attractive, but deployment-facing evidence is scarce.
+  \item Target problem: reproduce EFNO-style ideas faithfully enough to test offline and in DeepFlame coupled runs.
+  \item Main thesis of current draft: implementation correctness, deployment contract alignment, and target semantics matter at least as much as model family choice.
+\end{itemize}
+
+\section{Background and related work}
+\begin{itemize}[leftmargin=1.5em]
+  \item Weng et al. EFNO paper and extracted implementation ambiguities.
+  \item Local-paper crosswalk: Li 2025, Xiao 2026, Li 2026 DFODE-Kit.
+  \item Why C$_2$H$_4$ requires stronger data-generation and target-semantics care than H$_2$.
+\end{itemize}
+
+\section{Reproducible workflow and software stack}
+\begin{itemize}[leftmargin=1.5em]
+  \item PDF extraction and spec-first reproduction workflow.
+  \item DFODE-kit extensions: EFNO-style trainer, target modes, evaluator metrics, export bridges.
+  \item DeepFlame integration path for MLP and FNO-style models.
+\end{itemize}
+
+\section{Offline H$_2$ reproduction and implementation diagnosis}
+\subsection{Benchmark setup}
+\subsection{Initial EFNO-style baselines and seeded comparisons}
+\subsection{Rollout-consistency failure analysis}
+\subsection{Decode-contract bug and corrected BCT-state update}
+\subsection{Post-fix H$_2$ results}
+
+\paragraph{Current key claims to support}
+\begin{enumerate}[leftmargin=1.5em]
+  \item A transformed-state decode bug materially changed H$_2$ rollout conclusions.
+  \item After correction, rollout-aware EFNO becomes competitive or stronger on rollout-relevant metrics.
+  \item One-step and rollout metrics remain meaningfully decoupled.
+\end{enumerate}
+
+\section{DeepFlame-coupled H$_2$: from failure to guarded deployment}
+\subsection{Deployment contract alignment and preserve-last evaluation}
+\subsection{Case-side smoke failures under HP reconstruction}
+\subsection{Risk diagnostics and hybrid fallback design}
+\subsection{Frozen-temperature and logistic-risk guard studies}
+\subsection{Packaged deployment recommendation}
+
+\paragraph{Current key claims to support}
+\begin{enumerate}[leftmargin=1.5em]
+  \item Offline deployment-format evaluation can differ substantially from project-side evaluation.
+  \item Guarded hybrid policies are necessary for solver-usable H$_2$ operation.
+  \item The corrected branch supports a credible retention-oriented and safety-oriented deployment pair.
+\end{enumerate}
+
+\section{C$_2$H$_4$ baseline establishment and runtime bridge diagnosis}
+\subsection{Stock DeepFlame baseline and GPU runtime constraints}
+\subsection{First FNO integration and bridge/OOM fixes}
+\subsection{Case-pair data path and pressure-filter studies}
+\subsection{Curriculum and scheduled-switch deployment artifacts}
+
+\section{C$_2$H$_4$ data semantics: what the current best model still gets wrong}
+\subsection{Canonical augmentation path and calibrated mixing}
+\subsection{Best mixed model versus stock at 5e-6}
+\subsection{Two-regime source-term pathology}
+\subsection{Intermediate-species suppression}
+\subsection{Chemistry-proxy relabeling evidence for target mismatch}
+
+\paragraph{Current key claims to support}
+\begin{enumerate}[leftmargin=1.5em]
+  \item Calibrated canonical enrichment helps more than raw scale-up alone.
+  \item The best current mixed model remains deployment-imperfect in a structured way: over-driving cooler active cells and sign errors in the hot bulk.
+  \item The current full-CFD case-pair labels differ materially from chemistry-only proxy relabeling on key intermediates, supporting the target-semantics hypothesis.
+\end{enumerate}
+
+\section{Discussion}
+\begin{itemize}[leftmargin=1.5em]
+  \item Why deployment-facing chemistry surrogate work should report contract alignment, thermodynamic diagnostics, and coupled failure modes.
+  \item Why C$_2$H$_4$ currently looks target-limited rather than purely architecture-limited.
+  \item Limitations: no public EFNO code, partial paper ambiguity, chemistry-proxy relabeling still approximate, current manuscript emphasizes partial results.
+\end{itemize}
+
+\section{Conclusion}
+\begin{itemize}[leftmargin=1.5em]
+  \item H$_2$: corrected implementation plus guards gives a credible deployment story.
+  \item C$_2$H$_4$: stronger data/label semantics are the main forward path.
+  \item Final take-home: offline surrogate success is insufficient without deployment-aware validation.
+\end{itemize}
+
+\section*{Figure and table plan}
+\begin{enumerate}[leftmargin=1.5em]
+  \item H$_2$ corrected-decode versus legacy rollout figure.
+  \item H$_2$ hybrid fallback / frozen-temperature / risk-guard summary table.
+  \item C$_2$H$_4$ stock versus major dataset-family comparison table at 5e-6.
+  \item C$_2$H$_4$ canonical-mix comparison figure.
+  \item C$_2$H$_4$ best-mix versus stock error-anatomy figure.
+  \item C$_2$H$_4$ chemistry-proxy relabeling mismatch table.
+\end{enumerate}
+
+\section*{Immediate remaining tasks before submission}
+\begin{enumerate}[leftmargin=1.5em]
+  \item Convert current docs evidence into stable manuscript figures/tables.
+  \item Add one chemistry-proxy-trained deployment experiment or explicitly scope it as future work if it remains too unstable.
+  \item Fill in citations from extracted local papers and EFNO/OpenAlex notes.
+  \item Install a LaTeX toolchain and compile the draft.
+\end{enumerate}
+
+\end{document}
