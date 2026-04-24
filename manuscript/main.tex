@@ -5,6 +5,10 @@
 \usepackage{amsmath}
 \usepackage{hyperref}
 \usepackage{enumitem}
+\usepackage{array}
+\usepackage{ragged2e}
+\usepackage{microtype}
+\newcolumntype{L}[1]{>{\RaggedRight\arraybackslash}p{#1}}
 \title{Neural Stiff-Chemistry Surrogates in DeepFlame:\\Implementation Pitfalls, Coupled-Solver Safeguards, and Target Semantics for H$_2$ and C$_2$H$_4$}
 \author{Project draft generated from experiment record}
 \date{\today}
@@ -91,7 +95,9 @@ The next diagnostic step showed that the target-semantics hypothesis is real in 
 \input{tables/c2h4_error_anatomy_summary.tex}
 \input{tables/c2h4_chemproxy_mismatch_summary.tex}
 
-Table~\ref{tab:c2h4-runtime-summary} makes the current C$_2$H$_4$ claim boundary explicit. The best mixed model is reviewably better than prior baselines, but naive partial chemistry-proxy relabeling is not yet a deployment improvement. Tables~\ref{tab:c2h4-error-anatomy} and \ref{tab:c2h4-chemproxy-mismatch} sharpen the interpretation in an important way. Together they suggest that the remaining gap is not primarily one of network capacity or another nearby mixing ratio; it is a semantic gap between the full-CFD labels available cheaply and the chemistry-only evolution that would better preserve the intermediate manifold. The negative controls are therefore informative: pure chemistry-proxy relabeling fixes semantics too aggressively and loses the solver-relevant manifold, while random partial relabeling preserves the manifold but injects the new semantics in the wrong places. This supports the more specific forward hypothesis that semantics must be improved selectively rather than globally.
+Table~\ref{tab:c2h4-runtime-summary} makes the current C$_2$H$_4$ claim boundary explicit. The best mixed model is reviewably better than prior baselines, but naive partial chemistry-proxy relabeling is not yet a deployment improvement. Tables~\ref{tab:c2h4-error-anatomy} and \ref{tab:c2h4-chemproxy-mismatch} sharpen the interpretation in an important way. Together they suggest that the remaining gap is not primarily one of network capacity or another nearby mixing ratio; it is a semantic gap between the full-CFD labels available cheaply and the chemistry-only evolution that would better preserve the intermediate manifold. The negative controls are therefore informative: pure chemistry-proxy relabeling fixes semantics too aggressively and loses the solver-relevant manifold, while random partial relabeling preserves the manifold but injects the new semantics in the wrong places.
+
+A new targeted relabeling scout now makes that selective-semantics direction more concrete. On a late-window $dp100$ subset, a regime-targeted selector that concentrates relabel budget on cooler/intermediate-rich rows raises the selected intermediate-species mass from $5.36\times10^{-4}$ for a random 3k subset to $3.13\times10^{-3}$, while shifting the mean temperature from $2213$~K to $1399$~K. One-step chemistry-proxy relabeling on this targeted subset then shows an even larger semantic gap than the earlier random early-window scout, with mean absolute $T_{next}$ difference about $656$~K and order-of-magnitude shifts on species such as HCCO and C$_2$H$_5$. This supports the more specific forward hypothesis that semantics must be improved selectively rather than globally.
 
 \section{Discussion}
 The present evidence supports several broader lessons that cut across both fuels. First, transformed-state implementation details can dominate empirical conclusions, which reinforces the need to treat reproduction as implementation diagnosis rather than a narrow hyperparameter chase \cite{weng2025efno}. The H$_2$ decode-contract result is the clearest example: a bug in how states were updated across transformed spaces could easily have been misread as a limitation of rollout-aware learning itself.

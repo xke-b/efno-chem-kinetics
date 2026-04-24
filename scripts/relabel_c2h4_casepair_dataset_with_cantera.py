@@ -31,6 +31,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument('--reactor', choices=['const_pressure', 'const_volume'], default='const_pressure')
     p.add_argument('--max-samples', type=int, default=5000)
     p.add_argument('--seed', type=int, default=0)
+    p.add_argument('--index-file', default=None, help='Optional JSON file with explicit dataset indices to relabel.')
     return p.parse_args()
 
 
@@ -129,13 +130,24 @@ def main() -> None:
     species_names = meta['species_names']
     n_species = len(species_names)
 
-    rng = np.random.default_rng(args.seed)
-    if args.max_samples is not None and len(dataset) > args.max_samples:
-        indices = np.sort(rng.choice(len(dataset), size=args.max_samples, replace=False))
+    if args.index_file:
+        selection = json.loads(Path(args.index_file).read_text())
+        indices = np.asarray(selection['indices'], dtype=int)
+        if indices.ndim != 1:
+            raise ValueError('Selection indices must be a 1D list')
+        if len(indices) == 0:
+            raise ValueError('Selection indices are empty')
+        if indices.min() < 0 or indices.max() >= len(dataset):
+            raise ValueError('Selection indices out of bounds for dataset')
         subset = dataset[indices]
     else:
-        indices = np.arange(len(dataset))
-        subset = dataset
+        rng = np.random.default_rng(args.seed)
+        if args.max_samples is not None and len(dataset) > args.max_samples:
+            indices = np.sort(rng.choice(len(dataset), size=args.max_samples, replace=False))
+            subset = dataset[indices]
+        else:
+            indices = np.arange(len(dataset))
+            subset = dataset
 
     gas = ct.Solution(args.mech)
     relabeled_rows = [relabel_row(gas, row, n_species, args.dt, args.reactor) for row in subset]
@@ -154,6 +166,7 @@ def main() -> None:
             'count': int(len(indices)),
             'seed': args.seed,
             'max_samples': args.max_samples,
+            'index_file': str(Path(args.index_file).resolve()) if args.index_file else None,
         },
         'mech': str(Path(args.mech).resolve()),
         'reactor': args.reactor,

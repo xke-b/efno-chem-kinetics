@@ -60,10 +60,10 @@ def experiment_overview_table() -> None:
     )
     tex = rf"""\begin{{table*}}[t]
 \centering
-\small
+\footnotesize
 \caption{{Compact overview of the main benchmark/case families used in the manuscript.}}
 \label{{tab:experiment-overview}}
-\begin{{tabular}}{{p{{2.8cm}}p{{3.3cm}}p{{4.1cm}}p{{4.6cm}}}}
+\begin{{tabular}}{{L{{2.7cm}}L{{3.1cm}}L{{4.0cm}}L{{4.8cm}}}}
 \toprule
 Study block & Data / mechanism & Split or deployment contract & Primary reported metrics \\
 \midrule
@@ -120,10 +120,10 @@ def h2_table() -> None:
     )
     tex = rf"""\begin{{table}}[t]
 \centering
-\small
+\footnotesize
 \caption{{Selected H$_2$ coupled-deployment operating points for the corrected branch in DeepFlame.}}
 \label{{tab:h2-deployment-summary}}
-\begin{{tabular}}{{p{{2.5cm}}p{{2.8cm}}p{{3.4cm}}p{{2.2cm}}}}
+\begin{{tabular}}{{L{{2.3cm}}L{{2.8cm}}L{{3.3cm}}L{{2.4cm}}}}
 \toprule
 Mode & Learned frac. at $2\times10^{{-5}}$ & Cum. fallback frac. at $2\times10^{{-5}}$ & First time $>95\%$ fallback \\
 \midrule

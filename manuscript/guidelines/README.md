@@ -7,6 +7,13 @@ This directory collects manuscript-writing guidance, title/abstract conventions,
 - separate writing conventions from experiment findings
 - support consistent updating of `manuscript/main.tex`
 - support later peer review and journal adaptation
+- keep a project-local record of what counts as good research progress for the active program
+
+## Related guidance files
+- manuscript writing conventions:
+  - `/root/workspace/manuscript/guidelines/README.md`
+- research-progress principles:
+  - `/root/workspace/manuscript/guidelines/research-progress-principles.md`
 
 ## Current working title policy
 Prefer titles that foreground the paper's substantive contribution.
