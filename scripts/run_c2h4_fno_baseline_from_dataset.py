@@ -15,6 +15,33 @@ DFODE_ROOT = Path('/opt/src/DFODE-kit')
 DEFAULT_MECH = ROOT / 'runs' / 'deepflame_c2h4_smoke' / 'c2h4_stock_baseline_np8_gpu_stocksrc' / 'Wu24sp.yaml'
 DT = 1e-7
 
+MAIN_SPECIES = [
+    'H', 'H2', 'O', 'O2', 'OH', 'H2O', 'HO2', 'CO', 'CO2', 'HCO', 'CH3', 'CH4',
+    'CH2O', 'T-CH2', 'S-CH2', 'C2H4', 'C2H5', 'C2H2', 'C2H3', 'CH2CHO',
+    'HCCO', 'CH2CO', 'CH2OH',
+]
+
+
+SPECIES_WEIGHT_PROFILES = {
+    'c2h4_intermediates_v1': {
+        'C2H5': 20.0,
+        'C2H3': 20.0,
+        'CH2CHO': 20.0,
+        'CH2CO': 20.0,
+        'CH2OH': 20.0,
+        'HCCO': 20.0,
+    },
+}
+
+
+
+def build_species_loss_channel_weights(profile_name: str | None) -> list[float] | None:
+    if not profile_name:
+        return None
+    profile = SPECIES_WEIGHT_PROFILES[profile_name]
+    return [float(profile.get(name, 1.0)) for name in MAIN_SPECIES]
+
+
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser()
@@ -34,6 +61,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument('--attention-heads', type=int, default=0)
     p.add_argument('--attention-layers', type=int, default=0)
     p.add_argument('--attention-dropout', type=float, default=0.0)
+    p.add_argument('--species-weight-profile', choices=sorted(SPECIES_WEIGHT_PROFILES.keys()), default=None)
     p.add_argument('--note', default='C2H4 FNO baseline from explicit dataset.')
     return p.parse_args()
 
@@ -60,6 +88,8 @@ def main() -> None:
     metadata = Path(args.metadata)
     mech = Path(args.mech)
     tag = args.tag
+
+    species_loss_channel_weights = build_species_loss_channel_weights(args.species_weight_profile)
 
     ckpt = ROOT / 'artifacts' / 'models' / f'{tag}.pt'
     export_dir = ROOT / 'artifacts' / 'models' / f'{tag}_deepflame_bundle'
@@ -88,7 +118,7 @@ cfg = TrainingConfig(
         lr_decay_epoch=3,
         lr_decay_factor=0.5,
         batch_size={args.batch_size},
-        params={{'target_mode': {args.target_mode!r}, 'power_lambda': {args.power_lambda}}},
+        params={{'target_mode': {args.target_mode!r}, 'power_lambda': {args.power_lambda}, 'species_loss_channel_weights': {species_loss_channel_weights!r}}},
     ),
     time_step={DT},
     seed={args.seed},
@@ -127,6 +157,8 @@ train('{mech}', '{dataset}', '{ckpt}', {DT}, cfg)
         'attention_heads': args.attention_heads,
         'attention_layers': args.attention_layers,
         'attention_dropout': args.attention_dropout,
+        'species_weight_profile': args.species_weight_profile,
+        'species_loss_channel_weights': species_loss_channel_weights,
         'note': args.note,
     }
     summary_path.parent.mkdir(parents=True, exist_ok=True)

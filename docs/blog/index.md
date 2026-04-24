@@ -45,3 +45,4 @@ This section publishes regular technical blog posts on replication progress, fai
 - [2026-04-24 — The proper C2H4 CVODE baseline changes the calibration](2026-04-24-c2h4-cvode-baseline-changes-the-calibration.md)
 - [2026-04-24 — C2H4 power-delta targets help the bulk — but not the intermediates](2026-04-24-c2h4-power-delta-helps-the-bulk-not-the-intermediates.md)
 - [2026-04-24 — C2H4 attention helps some intermediates — but not all](2026-04-24-c2h4-attention-helps-some-intermediates-not-all.md)
+- [2026-04-24 — C2H4 species weighting helps one channel most — but not the whole manifold](2026-04-24-c2h4-species-weighting-helps-one-channel-mostly.md)
