@@ -124,6 +124,6 @@ This section publishes structured findings from paper reading, implementation, b
 - [2026-04-24 — C2H4 targeted partial chemistry-proxy ablation (`2%`): lowering the targeted replacement strength delays collapse substantially, but still does not recover solver-usable deployment](2026-04-24-c2h4-targeted-partial-chemproxy-2pct-ablation.md)
 - [2026-04-24 — C2H4 target-transform regime diagnostic: Xiao-style scale-separation pathology is already visible in the current BCT-delta targets](2026-04-24-c2h4-target-transform-regime-diagnostic.md)
 - [2026-04-24 — C2H4 DFODE-kit one-dimensional DeepFlame sampling path: confirmed, staged, and smoke-validated](2026-04-24-c2h4-dfode-kit-oned-deepflame-sampling-path.md)
+- [2026-04-24 — C2H4 one-dimensional DeepFlame sample vs Cantera canonical sample vs stock active states](2026-04-24-c2h4-oned-deepflame-vs-canonical-vs-stock.md)
 - [2026-04-24 — C2H4 chemistry-proxy 5k deployment attempt: fixing label semantics alone without enough coverage is not enough—the model fails catastrophically by `4e-7`](2026-04-24-c2h4-chemistry-proxy-5k-deployment-attempt.md)
 - [2026-04-24 — C2H4 partial chemistry-proxy label replacement (`10%`) ablation: preserving the CFD backbone keeps the run alive to `5e-6`, but naive partial relabeling still degrades solver-facing behavior badly](2026-04-24-c2h4-partial-chemproxy-10pct-ablation.md)
-- [2026-04-24 — C2H4 DFODE-kit one-dimensional DeepFlame sampling path: confirmed, staged, and smoke-validated](2026-04-24-c2h4-dfode-kit-oned-deepflame-sampling-path.md)
