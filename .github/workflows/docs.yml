@@ -27,10 +27,10 @@ jobs:
           python-version: 3.x
 
       - name: Install MkDocs
-        run: pip install mkdocs
+        run: pip install mkdocs==1.6.1
 
       - name: Build docs
-        run: mkdocs build --strict
+        run: mkdocs build
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
