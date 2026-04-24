@@ -16,3 +16,4 @@ This section publishes regular technical blog posts on replication progress, fai
 - [2026-04-24 — The late C2H4 FNO `5e-6` issue was partly a bridge problem, and batching fixes it](2026-04-24-c2h4-fno-batched-bridge-fix.md)
 - [2026-04-24 — The full batched C2H4 case-aligned FNO run now reaches `5e-6` cleanly](2026-04-24-c2h4-batched-full-5e-6.md)
 - [2026-04-24 — The repaired C2H4 FNO run is now mostly a model problem, not a runtime problem](2026-04-24-c2h4-batched-vs-stock.md)
+- [2026-04-24 — A more chemistry-like C2H4 target subset now exists: pressure-filtered case pairs](2026-04-24-c2h4-pressure-filtered-data.md)

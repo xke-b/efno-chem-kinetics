@@ -88,3 +88,4 @@ This section publishes structured findings from paper reading, implementation, b
 - [2026-04-24 — C2H4 FNO batched-inference fix: chunking the case-local FNO bridge removes the late CUDA OOM and restores nonzero `Qdot` at `5e-6`](2026-04-24-c2h4-fno-batched-inference-fix.md)
 - [2026-04-24 — Full batched-bridge C2H4 case-aligned FNO run: a clean start-to-`5e-6` replay now completes without CUDA OOM and preserves nonzero heat release](2026-04-24-c2h4-casepair-fno-batched-full-run.md)
 - [2026-04-24 — Full batched C2H4 case-aligned FNO vs stock at `5e-6`: runtime pathology is largely fixed, but the learned chemistry still departs materially from stock source terms and late intermediates](2026-04-24-c2h4-batched-full-vs-stock-comparison.md)
+- [2026-04-24 — Pressure-filtered C2H4 case-pair data path: a large near-constant-pressure active subset exists, and a first `|Δp| <= 100 Pa` filtered dataset is now extracted](2026-04-24-c2h4-pressure-filtered-case-pairs.md)
