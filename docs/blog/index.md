@@ -58,3 +58,4 @@ This section publishes regular technical blog posts on replication progress, fai
 - [2026-04-24 — C2H4: radical weighting helps OH but breaks HO2](2026-04-24-c2h4-radical-weighting-helps-oh-but-breaks-ho2.md)
 - [2026-04-24 — C2H4: OH-only weighting fixes OH and breaks the rest](2026-04-24-c2h4-oh-only-weighting-fixes-oh-and-breaks-the-rest.md)
 - [2026-04-24 — C2H4: soft OH weighting is safer, but not a real solution](2026-04-24-c2h4-soft-oh-weighting-is-safer-but-not-a-real-solution.md)
+- [2026-04-24 — C2H4: a better early-slice model can still fail in the real solver](2026-04-24-c2h4-a-better-early-slice-model-can-still-fail-in-the-real-solver.md)

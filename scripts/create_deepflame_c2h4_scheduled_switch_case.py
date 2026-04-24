@@ -104,7 +104,7 @@ def main() -> None:
         time_value = parse_time_value(path.name)
         if time_value is None:
             continue
-        if time_value > switch_value + 1e-15 and time_value <= end_value + 1e-15:
+        if time_value > switch_value + 1e-15:
             shutil.rmtree(path)
             removed_times.append(str(path.relative_to(out_case)))
 
