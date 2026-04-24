@@ -129,5 +129,7 @@ This section publishes structured findings from paper reading, implementation, b
 - [2026-04-24 — C2H4 one-dimensional DeepFlame augmented FNO: first training and integration smoke](2026-04-24-c2h4-oned-deepflame-augmented-fno-first-smoke.md)
 - [2026-04-24 — C2H4 `dp100 + oneD DeepFlame Xiao-style@0.2` test: early runtime survives, but the one-dimensional add-on does not yet rescue intermediate chemistry](2026-04-24-c2h4-dp100-plus-oned-deepflame-r0p2.md)
 - [2026-04-24 — C2H4 proper DeepFlame chemistry baseline at `1e-6`: CVODE confirms the current oneD-backed models are still far from solver-native chemistry fidelity](2026-04-24-c2h4-cvode-baseline-at-1e-6.md)
+- [2026-04-24 — C2H4 first power-delta deployment test on `dp100 + oneD@0.2`: bulk thermodynamics improve sharply against CVODE, but the intermediate-chemistry collapse remains](2026-04-24-c2h4-power-delta-first-deployment-test.md)
+- [2026-04-24 — C2H4 multiscale architecture ideas after the CVODE and power-delta calibrations](2026-04-24-c2h4-multiscale-architecture-ideas.md)
 - [2026-04-24 — C2H4 chemistry-proxy 5k deployment attempt: fixing label semantics alone without enough coverage is not enough—the model fails catastrophically by `4e-7`](2026-04-24-c2h4-chemistry-proxy-5k-deployment-attempt.md)
 - [2026-04-24 — C2H4 partial chemistry-proxy label replacement (`10%`) ablation: preserving the CFD backbone keeps the run alive to `5e-6`, but naive partial relabeling still degrades solver-facing behavior badly](2026-04-24-c2h4-partial-chemproxy-10pct-ablation.md)

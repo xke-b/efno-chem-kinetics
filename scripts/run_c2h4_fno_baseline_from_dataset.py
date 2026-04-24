@@ -26,6 +26,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument('--batch-size', type=int, default=512)
     p.add_argument('--lr', type=float, default=1e-3)
     p.add_argument('--mech', default=str(DEFAULT_MECH))
+    p.add_argument('--target-mode', default='species_only', choices=['species_only', 'species_power_delta'])
+    p.add_argument('--power-lambda', type=float, default=0.1)
     p.add_argument('--note', default='C2H4 FNO baseline from explicit dataset.')
     return p.parse_args()
 
@@ -77,7 +79,7 @@ cfg = TrainingConfig(
         lr_decay_epoch=3,
         lr_decay_factor=0.5,
         batch_size={args.batch_size},
-        params={{'target_mode': 'species_only'}},
+        params={{'target_mode': {args.target_mode!r}, 'power_lambda': {args.power_lambda}}},
     ),
     time_step={DT},
     seed={args.seed},
@@ -108,6 +110,8 @@ train('{mech}', '{dataset}', '{ckpt}', {DT}, cfg)
         'batch_size': args.batch_size,
         'lr': args.lr,
         'export': export_info,
+        'target_mode': args.target_mode,
+        'power_lambda': args.power_lambda,
         'note': args.note,
     }
     summary_path.parent.mkdir(parents=True, exist_ok=True)

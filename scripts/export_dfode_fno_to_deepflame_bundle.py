@@ -24,10 +24,11 @@ import numpy as np
 import torch
 
 from dfode_kit.models.fno1d import FNO1d
-from dfode_kit.utils import BCT, inverse_BCT
+from dfode_kit.utils import BCT, inverse_BCT, inverse_power_transform
 
 
 BCT_LAMBDA = 0.1
+POWER_LAMBDA = 0.1
 BCT_INVERSE_FLOOR = -1.0 / BCT_LAMBDA + 1e-8
 
 
@@ -38,6 +39,7 @@ import cantera as ct
 
 
 BCT_LAMBDA = 0.1
+POWER_LAMBDA = 0.1
 BCT_INVERSE_FLOOR = -1.0 / BCT_LAMBDA + 1e-8
 
 device_main = \"cuda:0\"
@@ -127,6 +129,10 @@ def _inverse_bct(z):
     return np.power(BCT_LAMBDA * z + 1.0, 1.0 / BCT_LAMBDA)
 
 
+def _inverse_power_delta(z):
+    return np.sign(z) * np.power(np.abs(z) * POWER_LAMBDA, 1.0 / POWER_LAMBDA)
+
+
 try:
     path_r = r\"./constant/CanteraTorchProperties\"
     with open(path_r, \"r\") as f:
@@ -168,6 +174,9 @@ try:
 
     payload = torch.load(modelName, map_location='cpu')
     meta = payload['export_metadata']
+    target_mode = str(meta.get('target_mode', 'species_only'))
+    power_lambda = float(meta.get('power_lambda', POWER_LAMBDA))
+    globals()['POWER_LAMBDA'] = power_lambda
     model = FNO1d(
         input_tokens=int(meta['input_tokens']),
         output_tokens=int(meta['output_tokens']),
@@ -206,8 +215,12 @@ def _run_model_in_batches(vec0_input):
                 output_norm = model(input_norm)
                 output_raw = output_norm * Ystd + Ymu
 
-                output_bct = torch.clamp(input_bct[:, 2:-1] + output_raw, min=BCT_INVERSE_FLOOR)
-                output_main = _inverse_bct(output_bct.detach().cpu().numpy())
+                if target_mode == 'species_power_delta':
+                    output_delta = _inverse_power_delta(output_raw.detach().cpu().numpy())
+                    output_main = np.clip(batch[:, 2:-2] + output_delta, 0.0, 1.0)
+                else:
+                    output_bct = torch.clamp(input_bct[:, 2:-1] + output_raw, min=BCT_INVERSE_FLOOR)
+                    output_main = _inverse_bct(output_bct.detach().cpu().numpy())
                 output_y = input_y.clone()
                 output_y[:, :-1] = torch.from_numpy(output_main).to(device=device, dtype=torch.float32)
                 denom = torch.sum(output_y[:, :-1], dim=1, keepdim=True)
@@ -281,6 +294,7 @@ def build_export_payload(checkpoint: dict) -> dict:
         raise ValueError('Checkpoint model.name must be fno1d')
 
     params = dict(model_cfg.get('params', {}))
+    trainer_params = cfg.get('trainer', {}).get('params', {})
     state = checkpoint['net']
     final_weight_key = 'project_tokens.weight'
     if final_weight_key not in state:
@@ -303,6 +317,8 @@ def build_export_payload(checkpoint: dict) -> dict:
             'modes': int(params.get('modes', 8)),
             'n_layers': int(params.get('n_layers', 4)),
             'activation': str(params.get('activation', 'gelu')),
+            'target_mode': str(trainer_params.get('target_mode', 'species_only')),
+            'power_lambda': float(trainer_params.get('power_lambda', POWER_LAMBDA)),
             'export_type': 'dfode_fno_to_deepflame_bundle',
         },
     }
@@ -314,6 +330,8 @@ def _predict_original_species(checkpoint: dict, state: np.ndarray) -> np.ndarray
     cfg = checkpoint['training_config']
     model_cfg = cfg['model']
     params = dict(model_cfg.get('params', {}))
+    target_mode = str(cfg.get('trainer', {}).get('params', {}).get('target_mode', 'species_only'))
+    power_lambda = float(cfg.get('trainer', {}).get('params', {}).get('power_lambda', POWER_LAMBDA))
     n_species = len(state) - 2
     output_dim = int(params.get('output_dim', n_species - 1))
     model = FNO1d(
@@ -337,9 +355,12 @@ def _predict_original_species(checkpoint: dict, state: np.ndarray) -> np.ndarray
     with torch.no_grad():
         pred_norm = model(x_norm).numpy()[0]
     raw = pred_norm * y_std[-output_dim:] + y_mean[-output_dim:]
-    base_bct = BCT(y[:-1], lam=BCT_LAMBDA).astype(np.float32)
-    pred_bct = np.maximum(base_bct + raw, BCT_INVERSE_FLOOR)
-    main_species = inverse_BCT(pred_bct, lam=BCT_LAMBDA)
+    if target_mode == 'species_power_delta':
+        main_species = y[:-1] + inverse_power_transform(raw, lam=power_lambda)
+    else:
+        base_bct = BCT(y[:-1], lam=BCT_LAMBDA).astype(np.float32)
+        pred_bct = np.maximum(base_bct + raw, BCT_INVERSE_FLOOR)
+        main_species = inverse_BCT(pred_bct, lam=BCT_LAMBDA)
     main_species = np.clip(main_species, 0.0, 1.0)
     out = y.copy()
     out[:-1] = main_species
@@ -352,6 +373,8 @@ def _predict_original_species(checkpoint: dict, state: np.ndarray) -> np.ndarray
 
 def _predict_exported_species(payload: dict, state: np.ndarray) -> np.ndarray:
     meta = payload['export_metadata']
+    target_mode = str(meta.get('target_mode', 'species_only'))
+    power_lambda = float(meta.get('power_lambda', POWER_LAMBDA))
     n_species = len(state) - 2
     model = FNO1d(
         input_tokens=int(meta['input_tokens']),
@@ -374,9 +397,12 @@ def _predict_exported_species(payload: dict, state: np.ndarray) -> np.ndarray:
     with torch.no_grad():
         pred_norm = model(x_norm).numpy()[0]
     raw = pred_norm * y_std + y_mean
-    base_bct = BCT(y[:-1], lam=BCT_LAMBDA).astype(np.float32)
-    pred_bct = np.maximum(base_bct + raw, BCT_INVERSE_FLOOR)
-    main_species = inverse_BCT(pred_bct, lam=BCT_LAMBDA)
+    if target_mode == 'species_power_delta':
+        main_species = y[:-1] + inverse_power_transform(raw, lam=power_lambda)
+    else:
+        base_bct = BCT(y[:-1], lam=BCT_LAMBDA).astype(np.float32)
+        pred_bct = np.maximum(base_bct + raw, BCT_INVERSE_FLOOR)
+        main_species = inverse_BCT(pred_bct, lam=BCT_LAMBDA)
     main_species = np.clip(main_species, 0.0, 1.0)
     out = y.copy()
     out[:-1] = main_species

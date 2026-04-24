@@ -19,7 +19,7 @@ import torch
 from dfode_kit.models.fno1d import build_fno1d
 from dfode_kit.models.mlp import build_mlp
 from dfode_kit.training.config import ModelConfig
-from dfode_kit.utils import BCT, inverse_BCT
+from dfode_kit.utils import BCT, inverse_BCT, inverse_power_transform
 
 
 BCT_LAMBDA = 0.1
@@ -84,12 +84,11 @@ def build_element_mass_matrix(mech_path: str) -> np.ndarray:
 
 def _decode_full_species(
     current_species: np.ndarray,
-    pred_species_bct: np.ndarray,
+    decoded_main_species: np.ndarray,
     *,
     species_postprocess_mode: str,
 ) -> np.ndarray:
-    pred_species = inverse_BCT(pred_species_bct, lam=BCT_LAMBDA)
-    pred_species = np.clip(pred_species, 0.0, 1.0)
+    pred_species = np.clip(decoded_main_species, 0.0, 1.0)
 
     if species_postprocess_mode == "closure":
         last_species = max(0.0, 1.0 - float(pred_species.sum()))
@@ -146,11 +145,22 @@ def predict_next_state(
         temp_next = float(current[0])
     species_delta = raw_pred[1:] if predicts_temperature else raw_pred
 
-    base_bct = BCT(y[:-1], lam=BCT_LAMBDA).astype(np.float32)
-    pred_bct = species_delta + base_bct
-    invalid_inverse = bool(np.any(pred_bct <= BCT_INVERSE_FLOOR))
-    pred_bct = np.maximum(pred_bct, BCT_INVERSE_FLOOR)
-    full_y = _decode_full_species(y, pred_bct, species_postprocess_mode=species_postprocess_mode)
+    power_lambda = float(
+        checkpoint.get("training_config", {})
+        .get("trainer", {})
+        .get("params", {})
+        .get("power_lambda", 0.1)
+    )
+    if target_mode == "species_power_delta":
+        decoded_main = np.clip(y[:-1] + inverse_power_transform(species_delta, lam=power_lambda), 0.0, 1.0)
+        invalid_inverse = False
+    else:
+        base_bct = BCT(y[:-1], lam=BCT_LAMBDA).astype(np.float32)
+        pred_bct = species_delta + base_bct
+        invalid_inverse = bool(np.any(pred_bct <= BCT_INVERSE_FLOOR))
+        pred_bct = np.maximum(pred_bct, BCT_INVERSE_FLOOR)
+        decoded_main = inverse_BCT(pred_bct, lam=BCT_LAMBDA)
+    full_y = _decode_full_species(y, decoded_main, species_postprocess_mode=species_postprocess_mode)
     full_state = np.concatenate(([temp_next, current[1]], full_y))
     return full_state, invalid_inverse
 
