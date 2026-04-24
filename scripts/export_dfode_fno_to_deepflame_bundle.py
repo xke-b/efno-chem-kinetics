@@ -79,7 +79,7 @@ class SpectralConv1d(torch.nn.Module):
 
 
 class FNO1d(torch.nn.Module):
-    def __init__(self, *, input_tokens: int, output_tokens: int, width: int, modes: int, n_layers: int, activation: str, attention_heads: int = 0, attention_layers: int = 0, attention_dropout: float = 0.0) -> None:
+    def __init__(self, *, input_tokens: int, output_tokens: int, width: int, modes: int, n_layers: int, activation: str, attention_heads: int = 0, attention_layers: int = 0, attention_dropout: float = 0.0, attention_position: str = "post_spectral") -> None:
         super().__init__()
         self.input_tokens = input_tokens
         self.output_tokens = output_tokens
@@ -89,6 +89,7 @@ class FNO1d(torch.nn.Module):
         self.attention_heads = attention_heads
         self.attention_layers = attention_layers
         self.attention_dropout = attention_dropout
+        self.attention_position = attention_position
         self.lift = torch.nn.Linear(1, width)
         self.spectral_layers = torch.nn.ModuleList(
             [SpectralConv1d(width, width, self.modes) for _ in range(n_layers)]
@@ -117,17 +118,40 @@ class FNO1d(torch.nn.Module):
         self.project_tokens = torch.nn.Linear(input_tokens, output_tokens)
         self.activation = _make_activation(activation)
 
+    def _apply_attention_block(self, x: torch.Tensor, norm, attn, ffn_norm, ffn) -> torch.Tensor:
+        attn_in = norm(x)
+        attn_out, _ = attn(attn_in, attn_in, attn_in, need_weights=False)
+        x = x + attn_out
+        x = x + ffn(ffn_norm(x))
+        return x
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.lift(x.unsqueeze(-1))
         x = x.permute(0, 2, 1)
+        attn_idx = 0
         for spectral, pointwise in zip(self.spectral_layers, self.pointwise_layers):
             x = self.activation(spectral(x) + pointwise(x))
+            if self.attention_position == "interleaved" and attn_idx < len(self.attention_layers_seq):
+                x = x.permute(0, 2, 1)
+                x = self._apply_attention_block(
+                    x,
+                    self.attention_norms[attn_idx],
+                    self.attention_layers_seq[attn_idx],
+                    self.attention_ffn_norms[attn_idx],
+                    self.attention_ffns[attn_idx],
+                )
+                x = x.permute(0, 2, 1)
+                attn_idx += 1
         x = x.permute(0, 2, 1)
-        for norm, attn, ffn_norm, ffn in zip(self.attention_norms, self.attention_layers_seq, self.attention_ffn_norms, self.attention_ffns):
-            attn_in = norm(x)
-            attn_out, _ = attn(attn_in, attn_in, attn_in, need_weights=False)
-            x = x + attn_out
-            x = x + ffn(ffn_norm(x))
+        if self.attention_position == "post_spectral":
+            for idx in range(attn_idx, len(self.attention_layers_seq)):
+                x = self._apply_attention_block(
+                    x,
+                    self.attention_norms[idx],
+                    self.attention_layers_seq[idx],
+                    self.attention_ffn_norms[idx],
+                    self.attention_ffns[idx],
+                )
         x = self.project_channels(x).squeeze(-1)
         return self.project_tokens(x)
 
@@ -208,6 +232,7 @@ try:
         attention_heads=int(meta.get('attention_heads', 0)),
         attention_layers=int(meta.get('attention_layers', 0)),
         attention_dropout=float(meta.get('attention_dropout', 0.0)),
+        attention_position=str(meta.get('attention_position', 'post_spectral')),
     )
     model.load_state_dict(payload['net'])
     model.eval()
@@ -295,7 +320,7 @@ def parse_args() -> argparse.Namespace:
 
 
 class RuntimeFNOBundle(torch.nn.Module):
-    def __init__(self, *, input_tokens: int, output_tokens: int, width: int, modes: int, n_layers: int, activation: str) -> None:
+    def __init__(self, *, input_tokens: int, output_tokens: int, width: int, modes: int, n_layers: int, activation: str, attention_heads: int = 0, attention_layers: int = 0, attention_dropout: float = 0.0, attention_position: str = 'post_spectral') -> None:
         super().__init__()
         self.model = FNO1d(
             input_tokens=input_tokens,
@@ -304,6 +329,10 @@ class RuntimeFNOBundle(torch.nn.Module):
             modes=modes,
             n_layers=n_layers,
             activation=activation,
+            attention_heads=attention_heads,
+            attention_layers=attention_layers,
+            attention_dropout=attention_dropout,
+            attention_position=attention_position,
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -344,6 +373,7 @@ def build_export_payload(checkpoint: dict) -> dict:
             'attention_heads': int(params.get('attention_heads', 0)),
             'attention_layers': int(params.get('attention_layers', 0)),
             'attention_dropout': float(params.get('attention_dropout', 0.0)),
+            'attention_position': str(params.get('attention_position', 'post_spectral')),
             'target_mode': str(trainer_params.get('target_mode', 'species_only')),
             'power_lambda': float(trainer_params.get('power_lambda', POWER_LAMBDA)),
             'export_type': 'dfode_fno_to_deepflame_bundle',
@@ -371,6 +401,7 @@ def _predict_original_species(checkpoint: dict, state: np.ndarray) -> np.ndarray
         attention_heads=int(params.get('attention_heads', 0)),
         attention_layers=int(params.get('attention_layers', 0)),
         attention_dropout=float(params.get('attention_dropout', 0.0)),
+        attention_position=str(params.get('attention_position', 'post_spectral')),
     )
     model.load_state_dict(checkpoint['net'])
     model.eval()
@@ -416,6 +447,7 @@ def _predict_exported_species(payload: dict, state: np.ndarray) -> np.ndarray:
         attention_heads=int(meta.get('attention_heads', 0)),
         attention_layers=int(meta.get('attention_layers', 0)),
         attention_dropout=float(meta.get('attention_dropout', 0.0)),
+        attention_position=str(meta.get('attention_position', 'post_spectral')),
     )
     model.load_state_dict(payload['net'])
     model.eval()

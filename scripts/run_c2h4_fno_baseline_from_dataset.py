@@ -31,6 +31,34 @@ SPECIES_WEIGHT_PROFILES = {
         'CH2OH': 20.0,
         'HCCO': 20.0,
     },
+    'c2h4_intermediates_radicals_v1': {
+        'C2H5': 20.0,
+        'C2H3': 20.0,
+        'CH2CHO': 20.0,
+        'CH2CO': 20.0,
+        'CH2OH': 20.0,
+        'HCCO': 20.0,
+        'OH': 10.0,
+        'HO2': 10.0,
+    },
+    'c2h4_intermediates_oh_v1': {
+        'C2H5': 20.0,
+        'C2H3': 20.0,
+        'CH2CHO': 20.0,
+        'CH2CO': 20.0,
+        'CH2OH': 20.0,
+        'HCCO': 20.0,
+        'OH': 10.0,
+    },
+    'c2h4_intermediates_ohsoft_v1': {
+        'C2H5': 20.0,
+        'C2H3': 20.0,
+        'CH2CHO': 20.0,
+        'CH2CO': 20.0,
+        'CH2OH': 20.0,
+        'HCCO': 20.0,
+        'OH': 3.0,
+    },
 }
 
 
@@ -61,6 +89,15 @@ def parse_args() -> argparse.Namespace:
     p.add_argument('--attention-heads', type=int, default=0)
     p.add_argument('--attention-layers', type=int, default=0)
     p.add_argument('--attention-dropout', type=float, default=0.0)
+    p.add_argument('--attention-position', choices=['post_spectral', 'interleaved'], default='post_spectral')
+    p.add_argument('--validation-fraction', type=float, default=0.1)
+    p.add_argument('--early-stopping-patience', type=int, default=12)
+    p.add_argument('--early-stopping-min-delta', type=float, default=1e-4)
+    p.add_argument('--lr-scheduler', choices=['none', 'reduce_on_plateau'], default='reduce_on_plateau')
+    p.add_argument('--plateau-patience', type=int, default=4)
+    p.add_argument('--plateau-factor', type=float, default=0.5)
+    p.add_argument('--plateau-min-delta', type=float, default=1e-5)
+    p.add_argument('--min-lr', type=float, default=1e-5)
     p.add_argument('--species-weight-profile', choices=sorted(SPECIES_WEIGHT_PROFILES.keys()), default=None)
     p.add_argument('--note', default='C2H4 FNO baseline from explicit dataset.')
     return p.parse_args()
@@ -78,7 +115,13 @@ def run(cmd: list[str]) -> None:
 def torch_load_jsonish(path: Path) -> dict:
     import torch
     payload = torch.load(path, map_location='cpu')
-    return {'model_path': str(path), 'export_metadata': payload.get('export_metadata', {})}
+    result = {'model_path': str(path)}
+    if 'export_metadata' in payload:
+        result['export_metadata'] = payload.get('export_metadata', {})
+    for key in ['training_history', 'best_epoch', 'best_metric', 'dataset_split', 'training_config']:
+        if key in payload:
+            result[key] = payload[key]
+    return result
 
 
 
@@ -110,6 +153,7 @@ cfg = TrainingConfig(
         'attention_heads': {args.attention_heads},
         'attention_layers': {args.attention_layers},
         'attention_dropout': {args.attention_dropout},
+        'attention_position': {args.attention_position!r},
     }}),
     optimizer=OptimizerConfig(name='adam', lr={args.lr}),
     trainer=TrainerConfig(
@@ -118,7 +162,20 @@ cfg = TrainingConfig(
         lr_decay_epoch=3,
         lr_decay_factor=0.5,
         batch_size={args.batch_size},
-        params={{'target_mode': {args.target_mode!r}, 'power_lambda': {args.power_lambda}, 'species_loss_channel_weights': {species_loss_channel_weights!r}}},
+        params={{
+            'target_mode': {args.target_mode!r},
+            'power_lambda': {args.power_lambda},
+            'species_loss_channel_weights': {species_loss_channel_weights!r},
+            'validation_fraction': {args.validation_fraction},
+            'early_stopping_patience': {args.early_stopping_patience},
+            'early_stopping_min_delta': {args.early_stopping_min_delta},
+            'lr_scheduler': {args.lr_scheduler!r},
+            'plateau_patience': {args.plateau_patience},
+            'plateau_factor': {args.plateau_factor},
+            'plateau_min_delta': {args.plateau_min_delta},
+            'min_lr': {args.min_lr},
+            'restore_best_state': True,
+        }},
     ),
     time_step={DT},
     seed={args.seed},
@@ -135,6 +192,7 @@ train('{mech}', '{dataset}', '{ckpt}', {DT}, cfg)
         '--validate-dataset', str(dataset),
         '--max-validate-samples', '128',
     ])
+    checkpoint_info = torch_load_jsonish(ckpt)
     export_info = torch_load_jsonish(export_dir / 'DNN_model_fno.pt')
 
     summary = {
@@ -148,6 +206,7 @@ train('{mech}', '{dataset}', '{ckpt}', {DT}, cfg)
         'seed': args.seed,
         'batch_size': args.batch_size,
         'lr': args.lr,
+        'checkpoint_info': checkpoint_info,
         'export': export_info,
         'target_mode': args.target_mode,
         'power_lambda': args.power_lambda,
@@ -157,6 +216,15 @@ train('{mech}', '{dataset}', '{ckpt}', {DT}, cfg)
         'attention_heads': args.attention_heads,
         'attention_layers': args.attention_layers,
         'attention_dropout': args.attention_dropout,
+        'attention_position': args.attention_position,
+        'validation_fraction': args.validation_fraction,
+        'early_stopping_patience': args.early_stopping_patience,
+        'early_stopping_min_delta': args.early_stopping_min_delta,
+        'lr_scheduler': args.lr_scheduler,
+        'plateau_patience': args.plateau_patience,
+        'plateau_factor': args.plateau_factor,
+        'plateau_min_delta': args.plateau_min_delta,
+        'min_lr': args.min_lr,
         'species_weight_profile': args.species_weight_profile,
         'species_loss_channel_weights': species_loss_channel_weights,
         'note': args.note,
