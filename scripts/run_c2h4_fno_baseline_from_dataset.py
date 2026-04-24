@@ -100,6 +100,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument('--min-lr', type=float, default=1e-5)
     p.add_argument('--species-weight-profile', choices=sorted(SPECIES_WEIGHT_PROFILES.keys()), default=None)
     p.add_argument('--activity-l1-weight', type=float, default=0.0)
+    p.add_argument('--enthalpy-loss-weight', type=float, default=1.0)
     p.add_argument('--note', default='C2H4 FNO baseline from explicit dataset.')
     return p.parse_args()
 
@@ -176,6 +177,7 @@ cfg = TrainingConfig(
             'plateau_min_delta': {args.plateau_min_delta},
             'min_lr': {args.min_lr},
             'activity_l1_weight': {args.activity_l1_weight},
+            'enthalpy_loss_weight': {args.enthalpy_loss_weight},
             'restore_best_state': True,
         }},
     ),
@@ -230,6 +232,7 @@ train('{mech}', '{dataset}', '{ckpt}', {DT}, cfg)
         'species_weight_profile': args.species_weight_profile,
         'species_loss_channel_weights': species_loss_channel_weights,
         'activity_l1_weight': args.activity_l1_weight,
+        'enthalpy_loss_weight': args.enthalpy_loss_weight,
         'note': args.note,
     }
     summary_path.parent.mkdir(parents=True, exist_ok=True)
