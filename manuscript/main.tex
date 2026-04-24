@@ -26,10 +26,24 @@ The manuscript is grounded in the EFNO paper by Weng et al. and a local-paper cr
 The implementation workflow combines PDF extraction and structured notes, DFODE-kit extensions for EFNO-style training and evaluation, and DeepFlame export bridges for MLP and FNO-like surrogates. All substantive experiments are documented in the project docs site together with scripts and artifact paths.
 
 \section{Offline H$_2$ reproduction and implementation diagnosis}
-The H$_2$ program established seeded offline baselines, rollout-aware EFNO-style training, and a key implementation diagnosis: a transformed-state species decode bug materially distorted rollout behavior. After correcting the update rule to act in the proper transformed state space, self-rollout behavior changed qualitatively and the corrected branch became a credible offline reference for deployment-facing work.
+The H$_2$ program established seeded offline baselines, rollout-aware EFNO-style training, and a key implementation diagnosis: a transformed-state species decode bug materially distorted rollout behavior. After correcting the update rule to act in the proper transformed state space, self-rollout behavior changed qualitatively and the corrected branch became a credible offline reference for deployment-facing work. Figure~\ref{fig:h2-corrected-decode} shows that the correction was not a small numerical cleanup: it sharply reduced long-horizon rollout error, especially for the self-rollout branches.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.98\linewidth]{../docs/findings/images/h2-corrected-decode-ablation.png}
+  \caption{H$_2$ legacy-vs-corrected decode ablation on rollout metrics at horizon 1000. Fixing the transformed-state update rule changes the empirical conclusion most strongly for the self-rollout branches, supporting the claim that a large part of the earlier instability was implementation-induced rather than intrinsic to self-feeding.}
+  \label{fig:h2-corrected-decode}
+\end{figure}
 
 \section{DeepFlame-coupled H$_2$: from failure to guarded deployment}
-The H$_2$ coupled study showed that export correctness and offline metrics are not enough. Coupled failures appeared first as HP reconstruction breakdowns, which led to hybrid fallback policies, frozen-temperature gating, and a logistic risk guard. Table~\ref{tab:h2-deployment-summary} summarizes representative operating points for the corrected branch. In the present evidence base, $650$~K gives the strongest long-horizon single-threshold retention, while the logistic risk guard at threshold $0.5$ provides a more safety-oriented mode with lower HP-failure exposure at some cost in learned participation.
+The H$_2$ coupled study showed that export correctness and offline metrics are not enough. Coupled failures appeared first as HP reconstruction breakdowns, which led to hybrid fallback policies, frozen-temperature gating, and a logistic risk guard. Figure~\ref{fig:h2-operating-windows} shows how threshold and guard choices reshape the coupled operating regime over time. Table~\ref{tab:h2-deployment-summary} summarizes representative operating points for the corrected branch. In the present evidence base, $650$~K gives the strongest long-horizon single-threshold retention, while the logistic risk guard at threshold $0.5$ provides a more safety-oriented mode with lower HP-failure exposure at some cost in learned participation.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.98\linewidth]{../docs/findings/images/h2-deployment-operating-windows.png}
+  \caption{H$_2$ coupled operating windows from the corrected branch. Top row: frozen-temperature sweep showing learned-cell retention and HP-failure fractions over time. Bottom row: FT650 risk-guard family. The figure makes two manuscript-level points explicit: raising the activation threshold delays collapse materially, and the logistic risk guard trades some learned participation for much lower HP-failure incidence.}
+  \label{fig:h2-operating-windows}
+\end{figure}
 
 \input{tables/h2_deployment_summary.tex}
 

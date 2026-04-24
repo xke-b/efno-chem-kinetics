@@ -4,7 +4,24 @@ This file tracks which manuscript claims are already backed by stable figures/ta
 
 ## Current manuscript figures
 
-### Figure 1 — Best mixed C2H4 model vs stock at 5e-6
+### Figure 1 — H2 corrected-decode ablation
+- file used in manuscript:
+  - `../docs/findings/images/h2-corrected-decode-ablation.png`
+- supporting artifact:
+  - `/root/workspace/artifacts/experiments/h2_efno_bct_state_decode_ablation/summary.json`
+- supports claim:
+  - fixing the transformed-state decode contract materially changed H2 rollout conclusions
+
+### Figure 2 — H2 coupled operating windows
+- file used in manuscript:
+  - `../docs/findings/images/h2-deployment-operating-windows.png`
+- supporting artifacts:
+  - `burke_corrected_self_rollout_predmainbct_frozen_temperature_sweep_comparison.json`
+  - `burke_corrected_self_rollout_predmainbct_ft650_riskguard_threshold_sweep.json`
+- supports claim:
+  - frozen-temperature and risk-guard choices materially reshape the learned/fallback operating regime in coupled deployment
+
+### Figure 3 — Best mixed C2H4 model vs stock at 5e-6
 - file used in manuscript:
   - `../docs/findings/images/c2h4-bestmix-r0p2-vs-stock-5e-06.png`
 - supporting artifact:
@@ -50,19 +67,6 @@ This file tracks which manuscript claims are already backed by stable figures/ta
   - current full-CFD labels differ materially from chemistry-only proxy relabels
 
 ## High-priority missing packaging
-
-### H2 offline corrected-decode figure
-- desired claim:
-  - decode-contract correction materially changed H2 rollout conclusions
-- likely source artifacts:
-  - `h2_efno_bct_state_decode_ablation/summary.json`
-  - corrected vs legacy rollout findings docs
-
-### H2 deployment timeline / fallback figure
-- desired claim:
-  - frozen-temperature and risk-guard choices change the learned/fallback operating regime over time
-- likely source artifacts:
-  - H2 frozen-temperature sweep and risk-threshold sweep JSON summaries
 
 ### C2H4 chemistry-proxy failure figure
 - desired claim:
