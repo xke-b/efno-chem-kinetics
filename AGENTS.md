@@ -13,6 +13,7 @@
 - Publish findings on the project docs site with code blocks, text, images, and figures, and write regular technical blog posts.
 - Treat manuscript preparation as an active parallel workstream: keep converting validated results into figures, tables, sections, and explicit claim boundaries for a reviewable paper.
 - Produce final results as a LaTeX manuscript with sufficient detail, figures, results, and discussion to form an academic preprint on EFNO for H2 and C2H4 surrogate chemistry in CFD, and compile it to PDF for peer review.
+- Do not consider the manuscript scientifically ready until both the H2 and C2H4 DeepFlame target simulations can be run to `endTime = 5e-4` with EFNO surrogates in the loop; until then, treat the manuscript as an honest partial-results workstream rather than a finished claim.
 - When running DeepFlame cases with an integrated neural-network chemistry model, default to GPU inference whenever the environment supports it; consult related DeepFlame examples in `/opt/src/deepflame-dev/examples/dfLowMachFoam/pytorch` for the expected `TorchSettings` / inference configuration pattern before deviating.
 - If PDF understanding is a bottleneck, research and propose the smallest robust Pi extension or auxiliary multimodal/document-ingestion pipeline.
 
@@ -22,6 +23,8 @@
 - Manuscript directory: `/root/workspace/manuscript`
 - Manuscript writing guidance directory: `/root/workspace/manuscript/guidelines`
 - Manuscript writing guidance README: `/root/workspace/manuscript/guidelines/README.md`
+- Research-progress principles note: `/root/workspace/manuscript/guidelines/research-progress-principles.md`
+- Xiao et al. 2026 paper PDF: `/root/workspace/papers/Xiao et al. - 2026 - Enhancing deep learning of ammonianatural gas combustion kinetics via physics-aware data augmentati.pdf`
 - OpenFOAM root: `/opt/openfoam7`
 - DeepFlame repo: `/opt/src/deepflame-dev`
 - DFODE-kit repo: `/opt/src/DFODE-kit`
@@ -36,6 +39,7 @@
 - Use Python plotting/imaging tools such as `matplotlib` to generate figures, images, and scalar-field/contour visualizations for experiments and simulations whenever they help communicate results, failure modes, comparisons, or conclusions more clearly.
 - Write and organize docs continuously, not only at the end.
 - Write technical blog posts regularly as work progresses, with more frequent updates than before; many people are following the work and expect a steady public record of progress.
+- When writing findings or updating the manuscript after a meaningful result, also write or update a companion technical blog post unless there is a strong reason not to.
 - Treat the manuscript as a living deliverable, not an end-stage afterthought: whenever enough evidence exists, update the LaTeX draft, stabilize section claims, and turn key findings into manuscript-ready figures and tables.
 - Keep `/root/workspace/manuscript/guidelines/README.md` updated as the project accumulates manuscript-writing conventions, title/abstract guidance, peer-review preparation notes, and publisher/journal best practices gathered from the web.
 - Prefer work that increases end-to-end paper readiness for the target study "EFNO applied to H2 and C2H4 surrogate chemistry in CFD": implementation fidelity, deployment evidence, negative results, and clear claim boundaries are all valuable.
@@ -44,6 +48,7 @@
 - Treat use of the `exa-search` skill for web search and broader information exposure as a high-priority action whenever external documentation, code references, or current scientific context could reduce uncertainty.
 - Carefully examine the other papers in `/root/workspace/papers` and reference them where they inform implementation choices, benchmark design, evaluation criteria, data workflows, or coupled-CFD relevance.
 - Learn from the papers in `/root/workspace/papers` about task-relevant aspects of deep learning for chemical kinetics in CFD, including training dataset construction, sampling strategy, data augmentation, preprocessing, target formulation, postprocessing, physical constraints, rollout evaluation, and coupled-simulation validation.
+- Treat training-data preparation as a primary likely bottleneck for current C2H4 progress, and study Xiao et al. (2026) especially carefully for physics-aware augmentation, scale separation, low-temperature handling, and data-quality ideas that could translate into stronger EFNO/C2H4 training targets.
 - Use web search and scholarly APIs when useful to expand the reference graph; this can include searching for additional related papers or using APIs such as OpenAlex to gather cited, citing, or otherwise connected papers.
 - Install and use a LaTeX toolchain when needed so the manuscript can be compiled to PDF locally before external review.
 - Commit and push to the GitHub repo regularly using conventional commit messages such as `feat:`, `fix:`, and `docs:`; do this more frequently than before so progress does not sit uncommitted for long, and push to the remote more regularly as well instead of letting local commits accumulate.
