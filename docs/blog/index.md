@@ -36,3 +36,4 @@ This section publishes regular technical blog posts on replication progress, fai
 - [2026-04-24 — The real C2H4 bottleneck is now visible: wrong source-term behavior in two different regimes](2026-04-24-c2h4-bestmix-error-anatomy.md)
 - [2026-04-24 — The C2H4 label-semantics problem is now visible in the data itself](2026-04-24-c2h4-chemistry-proxy-label-mismatch.md)
 - [2026-04-24 — Chemistry-proxy labels alone are not enough for C2H4](2026-04-24-c2h4-chemistry-proxy-alone-fails-early.md)
+- [2026-04-24 — Partial chemistry-proxy relabeling keeps C2H4 alive — but still makes it worse](2026-04-24-c2h4-partial-relabeling-survives-but-regresses.md)
