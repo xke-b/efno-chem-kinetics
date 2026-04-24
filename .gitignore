@@ -5,3 +5,6 @@ __pycache__/
 /artifacts/
 /data/
 /papers/
+/.pi/
+/runs/
+mpirun.pid

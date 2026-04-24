@@ -30,13 +30,6 @@ def read_internal_scalar_field(path: Path, fallback_n_cells: int | None = None) 
     with gzip.open(path, 'rt', encoding='utf-8', errors='ignore') as f:
         lines = f.readlines()
 
-    n_cells = None
-    for line in lines:
-        stripped = line.strip()
-        if stripped.isdigit():
-            n_cells = int(stripped)
-            break
-
     for i, line in enumerate(lines):
         stripped = line.strip()
         if stripped.startswith('internalField') and 'List<scalar>' in stripped:
@@ -44,10 +37,9 @@ def read_internal_scalar_field(path: Path, fallback_n_cells: int | None = None) 
             start = i + 3
             return np.array([float(lines[start + j].strip()) for j in range(count)], dtype=np.float64)
         if stripped.startswith('internalField') and 'uniform' in stripped:
+            n_cells = fallback_n_cells
             if n_cells is None:
-                n_cells = fallback_n_cells
-            if n_cells is None:
-                raise ValueError(f'Uniform field without resolvable cell count in {path}')
+                raise ValueError(f'Uniform field without fallback cell count in {path}')
             value = float(stripped.split('uniform', 1)[1].replace(';', '').strip())
             return np.full(n_cells, value, dtype=np.float64)
 

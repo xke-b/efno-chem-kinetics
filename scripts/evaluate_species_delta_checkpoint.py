@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Evaluate DFODE-kit species-delta checkpoints on paired trajectory data.
+"""Evaluate DFODE-kit paired-state checkpoints on paired trajectory data.
 
-This evaluator is intentionally aligned with the *current* DFODE-kit training
-contract, not the final EFNO paper contract. It is therefore useful for:
-- smoke validation
-- exposing mismatches between the current baseline and the paper
-- quick one-step / rollout checks for MLP and provisional FNO scaffolds
+This evaluator supports both the earlier species-only target contract and the
+new minimal thermochemical extension that predicts temperature + species.
+It is still a project-side reproduction scaffold, not the final paper-faithful
+EFNO evaluation stack.
 """
 
 from __future__ import annotations
@@ -33,6 +32,17 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dataset", required=True)
     parser.add_argument("--metadata", required=True)
     parser.add_argument("--out", default=None, help="Optional JSON output path")
+    parser.add_argument(
+        "--species-postprocess-mode",
+        choices=["closure", "preserve_last"],
+        default="closure",
+        help=(
+            "How to reconstruct the final species mass fraction after inverse-BCT decoding. "
+            "'closure' uses Y_last = 1 - sum(Y_main); 'preserve_last' matches the current "
+            "DeepFlame PyTorch inference path by preserving the input last-species value and "
+            "renormalizing the predicted main species to sum to 1 - Y_last,input."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -72,7 +82,39 @@ def build_element_mass_matrix(mech_path: str) -> np.ndarray:
 
 
 
-def predict_next_species(model, checkpoint: dict, current: np.ndarray, device: torch.device) -> tuple[np.ndarray, bool]:
+def _decode_full_species(
+    current_species: np.ndarray,
+    pred_species_bct: np.ndarray,
+    *,
+    species_postprocess_mode: str,
+) -> np.ndarray:
+    pred_species = inverse_BCT(pred_species_bct, lam=BCT_LAMBDA)
+    pred_species = np.clip(pred_species, 0.0, 1.0)
+
+    if species_postprocess_mode == "closure":
+        last_species = max(0.0, 1.0 - float(pred_species.sum()))
+        return np.concatenate((pred_species, [last_species]))
+
+    if species_postprocess_mode == "preserve_last":
+        full_y = current_species.copy()
+        full_y[:-1] = pred_species
+        denom = float(np.sum(full_y[:-1]))
+        if denom > 0.0:
+            full_y[:-1] = full_y[:-1] / denom * (1.0 - full_y[-1])
+        return full_y
+
+    raise ValueError(f"Unsupported species_postprocess_mode '{species_postprocess_mode}'")
+
+
+
+def predict_next_state(
+    model,
+    checkpoint: dict,
+    current: np.ndarray,
+    device: torch.device,
+    *,
+    species_postprocess_mode: str,
+) -> tuple[np.ndarray, bool]:
     n_species = (current.shape[0] - 2)
     y = np.clip(current[2:], 0.0, 1.0)
     features = np.hstack((current[:2], BCT(y, lam=BCT_LAMBDA))).astype(np.float32)
@@ -87,15 +129,30 @@ def predict_next_species(model, checkpoint: dict, current: np.ndarray, device: t
     with torch.no_grad():
         pred_norm = model(x_norm)
 
+    raw_pred = pred_norm.cpu().numpy()[0] * y_std.cpu().numpy()[0] + y_mean.cpu().numpy()[0]
+    predicts_temperature = raw_pred.shape[0] == n_species
+    target_mode = (
+        checkpoint.get("training_config", {})
+        .get("trainer", {})
+        .get("params", {})
+        .get("target_mode", "species_only")
+    )
+
+    if predicts_temperature and target_mode == "temperature_next_species":
+        temp_next = float(raw_pred[0])
+    elif predicts_temperature:
+        temp_next = float(current[0] + raw_pred[0])
+    else:
+        temp_next = float(current[0])
+    species_delta = raw_pred[1:] if predicts_temperature else raw_pred
+
     base_bct = BCT(y[:-1], lam=BCT_LAMBDA).astype(np.float32)
-    pred_bct = pred_norm.cpu().numpy()[0] * y_std.cpu().numpy()[0] + y_mean.cpu().numpy()[0] + base_bct
+    pred_bct = species_delta + base_bct
     invalid_inverse = bool(np.any(pred_bct <= BCT_INVERSE_FLOOR))
     pred_bct = np.maximum(pred_bct, BCT_INVERSE_FLOOR)
-    pred_species = inverse_BCT(pred_bct, lam=BCT_LAMBDA)
-    pred_species = np.clip(pred_species, 0.0, 1.0)
-    last_species = max(0.0, 1.0 - float(pred_species.sum()))
-    full_y = np.concatenate((pred_species, [last_species]))
-    return full_y, invalid_inverse
+    full_y = _decode_full_species(y, pred_bct, species_postprocess_mode=species_postprocess_mode)
+    full_state = np.concatenate(([temp_next, current[1]], full_y))
+    return full_state, invalid_inverse
 
 
 def main() -> None:
@@ -115,44 +172,67 @@ def main() -> None:
     current_states = dataset[:, :state_width]
     target_states = dataset[:, state_width:]
 
-    one_step_outputs = [predict_next_species(model, checkpoint, row, device) for row in current_states]
-    preds = np.vstack([item[0] for item in one_step_outputs])
+    one_step_outputs = [
+        predict_next_state(
+            model,
+            checkpoint,
+            row,
+            device,
+            species_postprocess_mode=args.species_postprocess_mode,
+        )
+        for row in current_states
+    ]
+    pred_states = np.vstack([item[0] for item in one_step_outputs])
+    preds = pred_states[:, 2:]
     one_step_invalid_inverse_count = int(sum(1 for _, invalid in one_step_outputs if invalid))
     target_species = target_states[:, 2:]
     element_mass_matrix = build_element_mass_matrix(metadata["mech"])
 
     one_step_mae = float(np.mean(np.abs(preds - target_species)))
     one_step_rmse = float(np.sqrt(np.mean((preds - target_species) ** 2)))
+    one_step_temperature_mae = float(np.mean(np.abs(pred_states[:, 0] - target_states[:, 0])))
+    one_step_temperature_rmse = float(np.sqrt(np.mean((pred_states[:, 0] - target_states[:, 0]) ** 2)))
     sum_error = float(np.mean(np.abs(preds.sum(axis=1) - 1.0)))
     one_step_element_mae = float(
         np.mean(np.abs(preds @ element_mass_matrix - target_species @ element_mass_matrix))
     )
 
     rollout_maes = []
+    rollout_temperature_maes = []
     rollout_mass_maes = []
     rollout_element_maes = []
     trajectories = dataset.reshape(n_init, steps, 2 * state_width)
     for i in range(n_init):
         state = trajectories[i, 0, :state_width].copy()
         per_step_errors = []
+        per_step_temperature_errors = []
         per_step_mass_errors = []
         per_step_element_errors = []
         for j in range(steps):
-            pred_y, invalid_inverse = predict_next_species(model, checkpoint, state, device)
+            pred_state, invalid_inverse = predict_next_state(
+                model,
+                checkpoint,
+                state,
+                device,
+                species_postprocess_mode=args.species_postprocess_mode,
+            )
             true_next = trajectories[i, j, state_width:]
+            pred_y = pred_state[2:]
             true_y = true_next[2:]
             per_step_errors.append(float(np.mean(np.abs(pred_y - true_y))))
+            per_step_temperature_errors.append(float(abs(pred_state[0] - true_next[0])))
             per_step_mass_errors.append(float(abs(pred_y.sum() - 1.0)))
             per_step_element_errors.append(
                 float(np.mean(np.abs(pred_y @ element_mass_matrix - true_y @ element_mass_matrix)))
             )
-            state = state.copy()
-            state[2:] = pred_y
+            state = pred_state.copy()
         rollout_maes.append(per_step_errors)
+        rollout_temperature_maes.append(per_step_temperature_errors)
         rollout_mass_maes.append(per_step_mass_errors)
         rollout_element_maes.append(per_step_element_errors)
 
     rollout_maes = np.asarray(rollout_maes)
+    rollout_temperature_maes = np.asarray(rollout_temperature_maes)
     rollout_mass_maes = np.asarray(rollout_mass_maes)
     rollout_element_maes = np.asarray(rollout_element_maes)
     metrics = {
@@ -161,23 +241,30 @@ def main() -> None:
         "model_name": model_name,
         "model_params": model_params,
         "n_species": n_species,
+        "species_postprocess_mode": args.species_postprocess_mode,
         "one_step_species_mae": one_step_mae,
         "one_step_species_rmse": one_step_rmse,
+        "one_step_temperature_mae": one_step_temperature_mae,
+        "one_step_temperature_rmse": one_step_temperature_rmse,
         "one_step_mass_sum_mae": sum_error,
         "one_step_invalid_inverse_count": one_step_invalid_inverse_count,
         "one_step_element_mass_mae": one_step_element_mae,
         "rollout_species_mae_by_horizon": rollout_maes.mean(axis=0).tolist(),
+        "rollout_temperature_mae_by_horizon": rollout_temperature_maes.mean(axis=0).tolist(),
         "rollout_mass_sum_mae_by_horizon": rollout_mass_maes.mean(axis=0).tolist(),
         "rollout_element_mass_mae_by_horizon": rollout_element_maes.mean(axis=0).tolist(),
         "notes": [
-            "This evaluator only checks species prediction because the current DFODE-kit baseline does not predict temperature.",
+            "This evaluator supports both species-only and minimal temperature-plus-species project checkpoints.",
+            f"Species postprocess mode: {args.species_postprocess_mode}.",
             "Use this as baseline evidence and mismatch documentation, not as paper-faithful EFNO evaluation.",
         ],
     }
 
     text = json.dumps(metrics, indent=2)
     if args.out:
-        Path(args.out).write_text(text, encoding="utf-8")
+        out_path = Path(args.out)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(text, encoding="utf-8")
     print(text)
 
 
