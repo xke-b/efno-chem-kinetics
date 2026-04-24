@@ -11,3 +11,5 @@ Agent-assisted reproduction and extension of EFNO-style methods for stiff chemic
 
 ## Documentation
 The project documentation is published with GitHub Pages from the `docs/` directory and includes experiment notes, findings, and technical blog posts.
+
+- Website: https://xke-b.github.io/efno-chem-kinetics/

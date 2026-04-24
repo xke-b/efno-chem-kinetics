@@ -41,3 +41,4 @@ This section publishes regular technical blog posts on replication progress, fai
 - [2026-04-24 — C2H4 targeted 2% relabeling lasts longer than targeted 10% — but it still fails early](2026-04-24-c2h4-targeted-2pct-lasts-longer-but-still-fails.md)
 - [2026-04-24 — The DFODE-kit one-dimensional DeepFlame sampling path for C2H4 is real — and the first staging pass found a real bug](2026-04-24-c2h4-dfode-kit-oned-path-is-real.md)
 - [2026-04-24 — The C2H4 one-dimensional DeepFlame sample looks like the better backbone — but it still needs Xiao-style balancing](2026-04-24-c2h4-oned-deepflame-sample-is-the-better-backbone.md)
+- [2026-04-24 — C2H4 oneD DeepFlame augmentation is real — but the first mixed-label test still doesn’t fix the chemistry](2026-04-24-c2h4-oned-augmentation-survives-but-mixing-doesnt-fix-chemistry.md)
