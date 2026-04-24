@@ -31,3 +31,4 @@ This section publishes regular technical blog posts on replication progress, fai
 - [2026-04-24 — The first paper-inspired canonical C2H4 data path works — maybe too well](2026-04-24-c2h4-canonical-data-smoke.md)
 - [2026-04-24 — More C2H4 data matters — but not in a simple scaling-law way](2026-04-24-c2h4-more-data-is-real-but-not-simple.md)
 - [2026-04-24 — A small calibrated canonical mix is the best C2H4 data result so far](2026-04-24-c2h4-small-canonical-mix-works.md)
+- [2026-04-24 — The best C2H4 canonical mix so far is not 0.1 — it’s 0.2](2026-04-24-c2h4-canonical-mix-r0p2-beats-r0p1.md)
