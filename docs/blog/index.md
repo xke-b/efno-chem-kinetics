@@ -59,3 +59,5 @@ This section publishes regular technical blog posts on replication progress, fai
 - [2026-04-24 — C2H4: OH-only weighting fixes OH and breaks the rest](2026-04-24-c2h4-oh-only-weighting-fixes-oh-and-breaks-the-rest.md)
 - [2026-04-24 — C2H4: soft OH weighting is safer, but not a real solution](2026-04-24-c2h4-soft-oh-weighting-is-safer-but-not-a-real-solution.md)
 - [2026-04-24 — C2H4: a better early-slice model can still fail in the real solver](2026-04-24-c2h4-a-better-early-slice-model-can-still-fail-in-the-real-solver.md)
+- [2026-04-24 — C2H4: the bulk heat release goes wrong by `3e-7`](2026-04-24-c2h4-the-bulk-heat-release-goes-wrong-by-3e-7.md)
+- [2026-04-24 — C2H4: a simple activity penalty didn’t fix the bulk problem](2026-04-24-c2h4-a-simple-activity-penalty-didnt-fix-the-bulk-problem.md)
