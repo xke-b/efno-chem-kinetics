@@ -35,19 +35,25 @@ def main() -> None:
 
     selected = relabel_meta['selected_indices']
     count = int(selected['count'])
-    max_samples = selected['max_samples']
-    seed = int(selected['seed'])
+    max_samples = selected.get('max_samples')
+    seed = int(selected.get('seed', 0))
+    index_file = selected.get('index_file')
     if count != relabeled.shape[0]:
         raise ValueError('Relabeled row count does not match metadata count')
 
-    rng = np.random.default_rng(seed)
-    if max_samples is not None and len(base) > max_samples:
-        indices = np.sort(rng.choice(len(base), size=max_samples, replace=False))
+    if index_file:
+        selection_payload = json.loads(Path(index_file).read_text())
+        indices = np.asarray(selection_payload['indices'], dtype=int)
+        if len(indices) != len(relabeled):
+            raise ValueError('Explicit selection indices length does not match relabeled dataset length')
     else:
-        indices = np.arange(len(base))
-
-    if len(indices) != len(relabeled):
-        raise ValueError('Selected indices length does not match relabeled dataset length')
+        rng = np.random.default_rng(seed)
+        if max_samples is not None and len(base) > max_samples:
+            indices = np.sort(rng.choice(len(base), size=max_samples, replace=False))
+        else:
+            indices = np.arange(len(base))
+        if len(indices) != len(relabeled):
+            raise ValueError('Selected indices length does not match relabeled dataset length')
 
     mixed = base.copy()
     n_species = len(base_meta['species_names'])
@@ -69,6 +75,7 @@ def main() -> None:
         'replaced_fraction': float(len(indices) / len(base)),
         'selection_seed': seed,
         'selection_max_samples': max_samples,
+        'selection_index_file': str(Path(index_file).resolve()) if index_file else None,
         'n_species': n_species,
         'species_names': base_meta['species_names'],
         'state_layout': base_meta['state_layout'],

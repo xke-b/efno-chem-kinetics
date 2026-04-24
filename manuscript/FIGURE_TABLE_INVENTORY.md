@@ -77,7 +77,5 @@ This file tracks which manuscript claims are already backed by stable figures/ta
 
 ## Current paper-readiness note
 
-The manuscript now has enough stable figure/table material for a serious draft iteration, but it still needs:
-- a more complete H2 offline evidence figure set
-- citations integrated into prose
-- a clearer methods section with benchmark and case definitions
+The manuscript now has enough stable figure/table material for a serious draft iteration, but one high-value optional addition remains:
+- a C$_2$H$_4$ failure-boundary figure comparing the pure chemistry-proxy or targeted-partial pre-failure state against a healthier baseline
