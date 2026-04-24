@@ -33,7 +33,7 @@
 - Carefully examine the other papers in `/root/workspace/papers` and reference them where they inform implementation choices, benchmark design, evaluation criteria, data workflows, or coupled-CFD relevance.
 - Learn from the papers in `/root/workspace/papers` about task-relevant aspects of deep learning for chemical kinetics in CFD, including training dataset construction, sampling strategy, data augmentation, preprocessing, target formulation, postprocessing, physical constraints, rollout evaluation, and coupled-simulation validation.
 - Use web search and scholarly APIs when useful to expand the reference graph; this can include searching for additional related papers or using APIs such as OpenAlex to gather cited, citing, or otherwise connected papers.
-- Commit and push to the GitHub repo regularly using conventional commit messages such as `feat:`, `fix:`, and `docs:`; do this more frequently than before so progress does not sit uncommitted for long.
+- Commit and push to the GitHub repo regularly using conventional commit messages such as `feat:`, `fix:`, and `docs:`; do this more frequently than before so progress does not sit uncommitted for long, and push to the remote more regularly as well instead of letting local commits accumulate.
 - DFODE-kit is still under development; you are encouraged to extend, fix, and develop its code base, and commit or push changes to its `origin/main` at `https://github.com/xke-b/DFODE-kit` when appropriate.
 - You are encouraged to write reusable assets such as scripts, utilities, templates, or Pi skills when they make the work more reliable, efficient, or reproducible.
 - Research existing tools and Pi capabilities before adding new extensions.

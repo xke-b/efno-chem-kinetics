@@ -65,6 +65,34 @@ Workspace-local staging and startup debugging for the stock DeepFlame C2H4 PyTor
     - attempt was slow enough to be manually stopped
     - interpretation: matching `coresPerNode` to `-np` is not yet a demonstrated practical solution by itself
 
+- `c2h4_stock_baseline_np8_gpu_stocksrc/`
+  - fresh stock-source case aligned with the original DeepFlame example assumptions
+  - settings:
+    - `GPU on`
+    - `numberOfSubdomains 8`
+    - `coresPerNode 8`
+    - `-np 8`
+  - current smoke result:
+    - completes cleanly through `5e-6`
+    - learned active-set counts remain stably nonzero and slowly increase:
+      - `2e-7`: `33508`
+      - `1e-6`: `33912`
+      - `2e-6`: `34197`
+      - `2.1e-6`: `34208`
+      - `2.5e-6`: `34244`
+      - `3e-6`: `34300`
+      - `4e-6`: `34504`
+      - `5e-6`: `34730`
+    - `solver.err` remains empty
+  - summary artifacts:
+    - `/root/workspace/artifacts/experiments/deepflame_c2h4_smoke_analysis/c2h4_stock_baseline_np8_gpu_stocksrc_5e-7_summary.json`
+    - `/root/workspace/artifacts/experiments/deepflame_c2h4_smoke_analysis/c2h4_stock_baseline_np8_gpu_stocksrc_1e-6_summary.json`
+    - `/root/workspace/artifacts/experiments/deepflame_c2h4_smoke_analysis/c2h4_stock_baseline_np8_gpu_stocksrc_2e-6_summary.json`
+    - `/root/workspace/artifacts/experiments/deepflame_c2h4_smoke_analysis/c2h4_stock_baseline_np8_gpu_stocksrc_5e-6_summary.json`
+  - interpretation:
+    - stock-style rank count restores nonzero learned activity under the restored source path
+    - this is now the most credible next runtime baseline for C2H4 GPU follow-up
+
 ## Current interpretation
 
 - the stock C2H4 learned path is now staged and runnable in `/root/workspace`
