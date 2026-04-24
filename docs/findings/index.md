@@ -106,3 +106,4 @@ This section publishes structured findings from paper reading, implementation, b
 - [2026-04-24 — C2H4 canonical-mix ratio scout: a small canonical fraction looks most promising, with a crude best point near a 0.1 canonical/case-pair weight ratio](2026-04-24-c2h4-canonical-mix-ratio-scout.md)
 - [2026-04-24 — C2H4 `dp100 + canonical@0.1` test: a small calibrated canonical fraction improves over both the original `dp100` baseline and the larger uncapped `dp100` scale-up](2026-04-24-c2h4-dp100-plus-canonical-r0p1.md)
 - [2026-04-24 — C2H4 canonical-mix local refinement: `0.2` beats `0.1`, while `0.05` fails badly, so the first good operating window is broader than expected but still clearly nontrivial](2026-04-24-c2h4-canonical-mix-local-refinement.md)
+- [2026-04-24 — C2H4 priority reset: stop local mix-ratio hill-climbing for now and refocus on the real bottleneck—label semantics and deployment-facing diagnostics](2026-04-24-c2h4-priority-reset.md)
