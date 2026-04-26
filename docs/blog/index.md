@@ -64,3 +64,4 @@ This section publishes regular technical blog posts on replication progress, fai
 - [2026-04-24 — C2H4: enthalpy regularization is more promising than a simple activity penalty](2026-04-24-c2h4-enthalpy-regularization-is-more-promising-than-a-simple-activity-penalty.md)
 - [2026-04-24 — C2H4: better one-step chemistry still flipped the bulk rollout by `3e-7`](2026-04-24-c2h4-better-one-step-chemistry-still-flipped-the-bulk-rollout-by-3e-7.md)
 - [2026-04-24 — C2H4: a delayed handoff can buy runtime even when the model is still wrong](2026-04-24-c2h4-a-delayed-handoff-can-buy-runtime-even-when-the-model-is-still-wrong.md)
+- [2026-04-24 — C2H4: the safe handoff window looks real and narrow](2026-04-24-c2h4-the-safe-handoff-window-looks-real-and-narrow.md)
