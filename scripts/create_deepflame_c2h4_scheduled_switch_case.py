@@ -62,6 +62,21 @@ def _require_value(name: str, explicit: str | None, config: dict, *, default: st
 
 
 
+def _available_written_times(source_case: Path) -> list[float]:
+    processor0 = source_case / 'processor0'
+    if not processor0.exists():
+        return []
+    values: list[float] = []
+    for path in processor0.iterdir():
+        if not path.is_dir():
+            continue
+        time_value = parse_time_value(path.name)
+        if time_value is not None:
+            values.append(time_value)
+    return sorted(set(values))
+
+
+
 def main() -> None:
     args = parse_args()
     schedule_config = _load_schedule_config(args.schedule_config)
@@ -70,6 +85,16 @@ def main() -> None:
     out_case = Path(args.out_case)
     switch_time = _require_value('switch_time', args.switch_time, schedule_config)
     end_time = _require_value('end_time', args.end_time, schedule_config, default='5e-6')
+
+    written_times = _available_written_times(source_case)
+    switch_value = float(switch_time)
+    if written_times and switch_value not in written_times:
+        nearest = min(written_times, key=lambda value: abs(value - switch_value))
+        raise ValueError(
+            f'switch_time {switch_time} is not a written restart time in {source_case}. '
+            f'Nearest available written time is {nearest:g}. '
+            f'Available times: {", ".join(f"{value:g}" for value in written_times)}'
+        )
 
     if out_case.exists():
         shutil.rmtree(out_case)
